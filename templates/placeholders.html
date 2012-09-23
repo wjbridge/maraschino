@@ -1,7 +1,7 @@
 <ul class="modules">
   {% if mods %}
     {% for module in mods %}
-      <li>
+      <li class='individual'>
         {% if module.static %}
           {% include module.template %}
         {% else %}

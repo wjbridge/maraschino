@@ -2866,4 +2866,14 @@ $(document).ready(function() {
       clearTimeout(timeOuts[key]);
     }
   }
+
+  // social stuff
+  $(document).on('click', 'div.social img', function() {
+    if($(this).hasClass('facebook')){
+      alert('fb button');
+    } else {
+      alert('twitter button');
+    }
+  });
+
 });

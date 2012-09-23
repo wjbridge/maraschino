@@ -62,6 +62,10 @@
         {{ currently_playing.label }}
       {% endif %}
     </p>
+    <div class="social">
+      <img src="{{ url_for('static', filename='images/social-facebook.png')}}" alt="Share on Facebook" class="facebook">
+      <img src="{{ url_for('static', filename='images/social-twitter.png')}}" alt="Share on Twitter" class="twitter">
+    </div>
   </div>
 
   <div class="progress" data-progress="{{ percentage_progress }}%">

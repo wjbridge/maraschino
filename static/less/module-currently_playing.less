@@ -149,6 +149,28 @@
         cursor: pointer;
       }
     }
+
+    div.social {
+      position: fixed;
+      opacity: 0;
+      .transition (opacity, 0.5s);
+      bottom: 14px;
+      left: 30px;
+      z-index: 20;
+      img {
+        .box-shadow (black, 0px, 0px, 10px);
+        height: 20px;
+        margin: 5px;
+        width: 70px;
+        cursor: pointer;
+      }
+    }
+
+    &:hover {
+      div.social {
+        opacity: 1;
+      }
+    }
   }
   .controls {
     margin-left: 45%;

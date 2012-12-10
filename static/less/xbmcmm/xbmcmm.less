@@ -1,0 +1,55 @@
+@import "../webroot.less";
+
+[class^="icon-"],[class*=" icon-"]{
+  background-image:url("/@{webroot}/images/glyphicons-halflings.png");
+}
+
+.icon-white{
+  background-image:url("/@{webroot}/images/glyphicons-halflings-white.png");
+}
+
+body {
+  padding-top: 60px;
+  overflow: hidden;
+}
+
+.sidebar-nav {
+  padding-left: 0;
+}
+
+.sidebar-nav,
+.details {
+  position: absolute;
+  top: 60px;
+  bottom: 0;
+  overflow-y: auto;
+}
+
+.details {
+  right: 10px;
+}
+
+textarea {
+  height: 100px;
+  resize: vertical;
+}
+
+.alert {
+	position: absolute;
+	top: 50px;
+	right: 10px;
+	z-index: 9999;
+}
+
+.episode_list {
+  height: 750px;
+  overflow-y: auto;
+}
+
+.top_buttons {
+  margin-bottom: 10px;
+}
+
+.thumb_main {
+  padding-bottom: 20px;
+}

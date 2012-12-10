@@ -1,0 +1,97 @@
+{% extends "/xbmcmm/modals/template.html" %}
+{% block modal_title %}
+{{ title }}
+{% endblock %}
+{% block modal_content %}
+
+  {% if not artist and not artists %}
+
+    Could not find artist on The Audio DB. Please consider <a href="http://www.theaudiodb.com/artistadd" target="_blank">adding this artist</a> to help yourself and others.
+
+  {% elif artist %}
+
+    <form class="form-horizontal scrape_info_form">
+      <fieldset>
+
+        {% if artist.strArtist %}
+          <div class="control-group">
+            <label class="control-label" for="artist">Artist</label>
+            <div class="controls">
+              <input id="artist" type="text" value="{{ artist.strArtist }}">
+            </div>
+          </div>
+        {% endif %}
+
+        {% if artist.strBiography %}
+          <div class="control-group">
+            <label class="control-label" for="description">Description</label>
+            <div class="controls">
+              <textarea type="text" id="description">{{ artist.strBiography }}</textarea>
+            </div>
+          </div>
+        {% endif %}
+
+        {% if artist.strGenre %}
+          <div class="control-group">
+            <label class="control-label" for="genre">Genres</label>
+            <div class="controls">
+              <input id="genre" type="text" value="{{ artist.strGenre }}">
+            </div>
+          </div>
+        {% endif %}
+
+        {% if artist.intBornYear %}
+          <div class="control-group">
+            <label class="control-label" for="born">Born</label>
+            <div class="controls">
+              <input id="born" type="text" value="{{ artist.intBornYear }}">
+            </div>
+          </div>
+        {% endif %}
+
+        {% if artist.intFormedYear %}
+          <div class="control-group">
+            <label class="control-label" for="formed">Formed</label>
+            <div class="controls">
+              <input id="formed" type="text" value="{{ artist.intFormedYear }}">
+            </div>
+          </div>
+        {% endif %}
+
+        {% if artist.intDiedYear %}
+          <div class="control-group">
+            <label class="control-label" for="died">Died</label>
+            <div class="controls">
+              <input id="died" type="text" value="{{ artist.intDiedYear }}">
+            </div>
+          </div>
+        {% endif %}
+
+        {% if artist.strDisbanded %}
+          <div class="control-group">
+            <label class="control-label" for="disbanded">Disbanded</label>
+            <div class="controls">
+              <input id="disbanded" type="text" value="{{ artist.strDisbanded }}">
+            </div>
+          </div>
+        {% endif %}
+
+      </fieldset>
+    </form>
+
+  {% else %}
+
+    <ul class="nav nav-list tadb_show_list">
+      {% for artist in artists %}
+        <li data-id="{{ artist.id }}" data-title="{{ artist.strArtist }}"><a href="#">{{ artist.strArtist }}</a></li>
+        <li class="divider"></li>
+      {% endfor %}
+    </ul>
+
+  {% endif %}
+
+{% endblock %}
+{% block modal_footer %}
+  <a href="#" class="btn btn-primary scrape_info_save_btn">Apply changes</a>
+{% endblock %}
+

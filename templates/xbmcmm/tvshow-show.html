@@ -1,0 +1,152 @@
+{% if item.tvshowdetails %}
+
+  <div class="row-fluid top_buttons">
+    <button
+      class="btn tvdb_info_btn"
+      data-loading-text="Loading..."
+    >
+      TVDB lookup
+    </button>
+
+    <button class="btn btn-danger pull-right remove_item">
+      Remove show
+    </button>
+  </div>
+
+  <form class="form-horizontal span4">
+    <div id="media_id" media-type="tvshow" data-id="{{ item.tvshowdetails.tvshowid }}"></div>
+    <fieldset>
+
+      <div class="control-group">
+        <label class="control-label" for="id_title">Title</label>
+        <div class="controls">
+          <input id="id_title" name="title" type="text" value="{{ item.tvshowdetails.title }}">
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label" for="originaltitle">Original Title</label>
+        <div class="controls">
+          <input id="id_originaltitle" name="originaltitle" type="text" value="{{ item.tvshowdetails.originaltitle }}">
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label" for="id_sorttitle">Sort Title</label>
+        <div class="controls">
+          <input id="id_sorttitle" name="sorttitle" type="text" value="{{ item.tvshowdetails.sorttitle }}">
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label" for="id_plot">Plot</label>
+        <div class="controls">
+          <textarea type="text" id="id_plot" name="plot">{{ item.tvshowdetails.plot }}</textarea>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label" for="id_genre">Genres</label>
+        <div class="controls">
+          <input id="id_genre" name="genre" type="text" value="{{ item.tvshowdetails.genre }}">
+          <button class="btn add_genre_btn" data-file_type="video" data-media_type="tvshow" type="button">+</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label" for="id_premiered">Premiered</label>
+        <div class="controls">
+          <input id="id_premiered" name="premiered" type="text" value="{{ item.tvshowdetails.premiered }}">
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label" for="id_rating">Rating</label>
+        <div class="controls">
+          <input id="id_rating" name="rating" type="text" value="{{ item.tvshowdetails.rating|float|round(1, 'common') }}">
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label" for="id_votes">Votes</label>
+        <div class="controls">
+          <input id="id_votes" name="votes" type="text" value="{{ item.tvshowdetails.votes }}">
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label" for="id_mpaa">Certification</label>
+        <div class="controls">
+          <input id="id_mpaa" name="mpaa" type="text" value="{{ item.tvshowdetails.mpaa }}">
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label" for="id_studio">Studio</label>
+        <div class="controls">
+          <input id="id_studio" name="studio" type="text" value="{{ item.tvshowdetails.studio }}">
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label" for="id_imdbnumber">
+          {% if item.tvshowdetails.imdbnumber|isdigit %}
+            <a href="http://thetvdb.com/?tab=series&id={{ item.tvshowdetails.imdbnumber }}" target="_blank" title="View on TVDB">
+              TVDB ID
+            </a>
+          {% else %}
+            <a href="http://www.imdb.com/title/{{ item.tvshowdetails.imdbnumber }}/" target="_blank" title="View on IMDB">
+              IMDB ID
+            </a>
+          {% endif %}
+        </label>
+        <div class="controls">
+          <input id="id_imdbnumber" name="imdbnumber" type="text" value="{{ item.tvshowdetails.imdbnumber }}" >
+        </div>
+      </div>
+
+      <input id="id_thumbnail" name="thumbnail" type="hidden" value="{{ item.tvshowdetails.thumbnail }}">
+      <input id="id_fanart" name="fanart" type="hidden" value="{{ item.tvshowdetails.fanart }}">
+
+    </fieldset>
+
+  </form>
+
+  <div class="span4 thumbnail">
+    <img id="fanart_img" src="{{ item.tvshowdetails.fanart|xbmc_image }}">
+    <br>
+    <div class="pull-right">
+      <button class="btn file_btn" data-type="fanart">File</button>
+      <button class="btn url_btn" data-type="fanart">URL</button>
+      {% if item.tvshowdetails.imdbnumber %}
+        <button class="btn fanarttv_btn" data-type="fanart" data-media="series">
+          fanart.tv
+        </button>
+        <button class="btn tvdb_img_btn" data-type="fanart">
+          TVDB
+        </button>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="span3 thumbnail">
+    <img id="thumbnail_img" src="{{ item.tvshowdetails.thumbnail|xbmc_image }}">
+    <br>
+    <div class="pull-right">
+      <button class="btn file_btn" data-type="thumbnail">File</button>
+      <button class="btn url_btn" data-type="thumbnail">URL</button>
+      {% if item.tvshowdetails.imdbnumber %}
+        <button class="btn tvdb_img_btn" data-type="thumbnail">
+          TVDB
+        </button>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row-fluid">
+    <div class="span12">
+      <button class="btn xbmc_save" type="submit">Apply Changes</button>
+    </div>
+  </div>
+
+{% endif %}

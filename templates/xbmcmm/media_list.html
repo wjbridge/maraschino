@@ -1,0 +1,37 @@
+
+<ul class="nav nav-list media_list">
+  <li class="nav-header">
+		<input type="text" class="search-query filter" placeholder="Filter"/>
+  </li>
+
+  {% if media_list %}
+  	{% if media_list.movies %}
+      {% for movie in media_list.movies %}
+        <li class="item" data-type="movie" id="{{ movie.movieid }}">
+        	<a href="#">
+        		{{ movie.label }}
+        	</a>
+        </li>
+      {% endfor %}
+
+    {% elif media_list.tvshows %}
+      {% for show in media_list.tvshows %}
+        <li class="item" data-type="tvshow" id="{{ show.tvshowid }}">
+        	<a href="#">
+        		{{ show.label }}
+        	</a>
+        </li>
+      {% endfor %}
+
+    {% elif media_list.artists %}
+      {% for artist in media_list.artists %}
+     		<li class="item" data-type="artist" id="{{ artist.artistid }}">
+     			<a href="#">
+     				{{ artist.label }}
+     			</a>
+     		</li>
+      {% endfor %}
+
+    {% endif %}
+  {% endif %}
+</ul>

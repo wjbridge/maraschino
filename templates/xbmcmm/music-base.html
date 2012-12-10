@@ -1,0 +1,29 @@
+<div class="details well span10">
+  {% if item.artistdetails %}
+    <ul id="tabs" class="nav nav-tabs" data-tabs="tabs">
+      <li class="active artist_tab" data-id="{{ item.artistdetails.artistid }}">
+        <a href="#artist{{ item.artistdetails.artistid }}" data-toggle="tab"><b>{{ item.artistdetails.label }}</b></a>
+      </li>
+      {% if item.albums %}
+        {% for album in item.albums %}
+          <li class="album_tab album{{ album.albumid }}" data-albumid="{{ album.albumid }}">
+            <a href="#album{{ album.albumid }}" data-toggle="tab"><b>{{ album.label }}</b></a>
+          </li>
+        {% endfor %}
+      {% endif %}
+    </ul>
+
+    <div id="my-tab-content" class="tab-content">
+      {% if item.albums %}
+        {% for album in item.albums %}
+          <div class="tab-pane" id="album{{ album.albumid }}">
+            {% include '/xbmcmm/music-album.html' %}
+          </div>
+        {% endfor %}
+      {% endif %}
+      <div class="tab-pane active" id="artist{{ item.artistdetails.artistid }}">
+        {% include '/xbmcmm/music-artist.html' %}
+      </div>
+    </div>
+  {% endif %}
+</div>

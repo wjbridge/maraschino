@@ -68,6 +68,7 @@ def import_modules():
     import modules.weather
     import modules.xbmc_notify
     import mobile
+    import xbmcmm
 
 
 @app.teardown_request

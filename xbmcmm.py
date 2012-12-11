@@ -479,7 +479,7 @@ def xhr_xbmcmm_set_album(albumid):
             'mood': str2lst(request.form['mood']),
             'type': request.form['type'],
             'albumlabel': request.form['albumlabel'],
-            'rating': int(request.form['rating']),
+            'rating': int(float(request.form['rating'])),
             'year': int(request.form['year']),
         }
 
@@ -1130,7 +1130,7 @@ artist_properties = ['description', 'instrument', 'style', 'mood', 'born', 'form
 
 album_properties = ['title', 'description', 'artist', 'genre', 'theme', 'mood', 'style', 'type',
                     'albumlabel', 'rating', 'year', 'musicbrainzalbumid', 'musicbrainzalbumartistid',
-                    'fanart', 'thumbnail']
+                    'thumbnail']
 
 
 ### Genres  ###

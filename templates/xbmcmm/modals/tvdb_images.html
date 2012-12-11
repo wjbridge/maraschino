@@ -3,7 +3,6 @@
 {% block modal_content %}
 
   <div class="modal_images span5">
-
     {% if show and show['_banners'] %}
       {% if img_type == 'fanart' %}
         <ul id="tabs" class="nav nav-tabs" data-tabs="tabs">
@@ -31,54 +30,37 @@
           {% endfor %}
         </div>
 
+      {% elif img_type == 'poster' %}
+        {% for size in show['_banners']['poster'] %}
+          <div class="span5"><h3>{{ size }}</h3></div>
+          {% for image in show['_banners']['poster'][size|str] %}
+            <a href="#" class="thumbnail span2">
+              <img 
+                src="{{ show['_banners']['poster'][size|str][image|str]['localpath'] }}"
+                data-url="{{ show['_banners']['poster'][size|str][image|str]['_bannerpath'] }}"
+                data-type="poster"
+                alt=""
+              >
+            </a>
+          {% endfor %}
+        {% endfor %}
+
       {% else %}
-        <ul id="tabs" class="nav nav-tabs" data-tabs="tabs">
-          <li class="{{ 'active' if not bannerart }}">
-            <a href="#posters" data-toggle="tab">Posters</a>
-          </li>
-          <li class="{{ 'active' if bannerart }}">
-            <a href="#banners" data-toggle="tab">Banners</a>
-          </li>
-        </ul>
-
-        <div id="my-tab-content" class="tab-content">
-
-          <div class="tab-pane {{ 'active' if not bannerart }}" id="posters">
-            {% for size in show['_banners']['poster'] %}
-              <div class="span5"><h3>{{ size }}</h3></div>
-              {% for image in show['_banners']['poster'][size|str] %}
-                <a href="#" class="thumbnail span2">
-                  <img 
-                    src="{{ show['_banners']['poster'][size|str][image|str]['localpath'] }}"
-                    data-url="{{ show['_banners']['poster'][size|str][image|str]['_bannerpath'] }}"
-                    data-type="thumbnail"
-                    alt=""
-                  >
-                </a>
-              {% endfor %}
-            {% endfor %}
-          </div>
-
-          <div class="tab-pane {{ 'active' if bannerart }}" id="banners">
-            {% for type in show['_banners']['series'] %}
-              <div class="span5"><h3>{{ type }}</h3></div>
-              {% for image in show['_banners']['series'][type] %}
-                <a href="#" class="thumbnail span2">
-                  <img 
-                    src="{{ show['_banners']['series'][type][image|str]['localpath'] }}"
-                    data-url="{{ show['_banners']['series'][type][image|str]['_bannerpath'] }}"
-                    data-type="thumbnail"
-                    alt=""
-                  >
-                </a>
-              {% endfor %}
-            {% endfor %}
-          </div>
-
-        </div>
+        {% for type in show['_banners']['series'] %}
+          <div class="span5"><h3>{{ type }}</h3></div>
+          {% for image in show['_banners']['series'][type] %}
+            <a href="#" class="thumbnail span2">
+              <img 
+                src="{{ show['_banners']['series'][type][image|str]['localpath'] }}"
+                data-url="{{ show['_banners']['series'][type][image|str]['_bannerpath'] }}"
+                data-type="banner"
+                alt=""
+              >
+            </a>
+          {% endfor %}
+        {% endfor %}
       {% endif %}
     {% endif %}
-
   </div>
 
 {% endblock %}

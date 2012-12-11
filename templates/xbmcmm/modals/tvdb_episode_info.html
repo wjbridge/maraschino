@@ -23,24 +23,6 @@
         </div>
       {% endif %}
 
-      {% if episode.seasonnumber %}
-        <div class="control-group">
-          <label class="control-label" for="season">Season</label>
-          <div class="controls">
-            <input id="season" name="season" type="text" value="{{ episode.seasonnumber }}">
-          </div>
-        </div>
-      {% endif %}
-
-      {% if episode.episodenumber %}
-        <div class="control-group">
-          <label class="control-label" for="episode">Episode</label>
-          <div class="controls">
-            <input id="episode" name="episode" type="text" value="{{ episode.episodenumber }}">
-          </div>
-        </div>
-      {% endif %}
-
       {% if episode.overview %}
         <div class="control-group">
           <label class="control-label" for="plot">Plot</label>

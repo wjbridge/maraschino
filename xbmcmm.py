@@ -359,11 +359,28 @@ def xhr_xbmcmm_set_tvshow(tvshowid):
             'premiered': request.form['premiered'],
             'mpaa': request.form['mpaa'],
             'studio': str2lst(request.form['studio']),
-            'imdbnumber': request.form['imdbnumber'],
             'votes': request.form['votes'],
-            'thumbnail': url2xbmc_img(request.form['thumbnail']),
-            'fanart': url2xbmc_img(request.form['fanart'])
         }
+
+        # Only set artwork if it exists
+        art = {}
+        if request.form['poster']:
+            art['poster'] = request.form['poster']
+        if request.form['fanart']:
+            art['fanart'] = request.form['fanart']
+        if request.form['banner']:
+            art['banner'] = request.form['banner']
+        if request.form['clearart']:
+            art['clearart'] = request.form['clearart']
+        if request.form['clearlogo']:
+            art['clearlogo'] = request.form['clearlogo']
+        if request.form['characterart']:
+            art['characterart'] = request.form['characterart']
+        if request.form['landscape']:
+            art['landscape'] = request.form['landscape']
+
+        if art:
+            params['art'] = art
 
     except Exception as e:
         xbmcmm_except(e)
@@ -393,10 +410,11 @@ def xhr_xbmcmm_set_episode(episodeid):
             'votes': request.form['votes'],
             'director': str2lst(request.form['director']),
             'writer': str2lst(request.form['writer']),
-            'season': int(request.form['season']),
-            'episode': int(request.form['episode']),
-            'thumbnail': url2xbmc_img(request.form['thumbnail'])
         }
+
+        # Only set artwork if it exists
+        if request.form['thumb']:
+            params['art'] = {'thumb': request.form['thumb']}
 
     except Exception as e:
         xbmcmm_except(e)
@@ -507,16 +525,25 @@ def fanarttv_api(url, dev=False):
 def xhr_xbmcmm_fanarttv(media, type, id):
     logger.log('XBMCMM :: Fething %s images for %s: %s from fanart.tv' % (type, media, id), 'INFO')
 
-    if type == 'fanart':
-        img_type = media + 'background'
-    elif type == 'discart':
-        img_type = media +'disc'
-    elif type == 'clearlogo':
-        img_type = media + 'logo'
-    elif type == 'clearart':
-        img_type = media + 'art'
-    else:
-        img_type = media + type
+    fanarttv_media = {
+        'movie': {
+            'banner': 'moviebanner',
+            'fanart': 'moviebackground',
+            'discart': 'moviedisc',
+            'clearlogo': 'movielogo',
+            'clearart': 'movieart'
+        },
+        'series': {
+            'banner': 'tvbanner',
+            'fanart': 'showbackground',
+            'clearlogo': 'clearlogo',
+            'clearart': 'clearart',
+            'landscape': 'tvthumb',
+            'characterart': 'characterart'
+        }
+    }
+
+    img_type = fanarttv_media[media][type]
 
     try:
         fanarttv = fanarttv_api(fanarttv_url(media, img_type, id), True)
@@ -698,12 +725,18 @@ def tvdb_show_search(show_name):
     return shows
 
 def tvdb_str2list(show=None, episode=None):
+    def split_var(var):
+        return ' / '.join([x for x in var.split('|') if x])
+
     if show:
-        show['genre'] = show['genre'].split('|')
+        if show['genre']:
+            show['genre'] = split_var(show['genre'])
         return lst2str(show)
     else:
-        episode['writer'] = episode['writer'].split('|')
-        episode['director'] = episode['director'].split('|')
+        if episode['writer']:
+            episode['writer'] = split_var(episode['writer'])
+        if episode['director']:
+            episode['director'] = split_var(episode['director'])
         return lst2str(episode)
 
 @app.route('/xhr/tvdb_show/<show_name>/')
@@ -809,18 +842,19 @@ def tvdb_show_image_cache(show, img_type):
     '''
     show_name = show['id']
 
-    if img_type == 'thumbnail' and show['_banners']['poster'] and show['_banners']['series']: #posters and banners
+    if img_type == 'poster' and show['_banners']['poster']: # Posters
         for size in show['_banners']['poster']:
             for image in show['_banners']['poster'][str(size)]:
                 url = show['_banners']['poster'][str(size)][str(image)]['_bannerpath']
                 show['_banners']['poster'][str(size)][str(image)]['localpath'] = xbmcmm_image_cache(url, 'shows', 'posters', show_name=show_name)
 
+    elif img_type == 'banner' and show['_banners']['series']: # Banners
         for ban_type in show['_banners']['series']:
             for image in show['_banners']['series'][ban_type]:
                 url = show['_banners']['series'][ban_type][str(image)]['_bannerpath']
                 show['_banners']['series'][ban_type][str(image)]['localpath'] = xbmcmm_image_cache(url, 'shows', 'banners', show_name=show_name)
 
-    else: #fanart (thumb)
+    else: # Fanart
         if show['_banners']['fanart']:
             for size in show['_banners']['fanart']:
                 for image in show['_banners']['fanart'][str(size)]:
@@ -830,7 +864,7 @@ def tvdb_show_image_cache(show, img_type):
     while maraschino.THREADS:
         time.sleep(1)
     return show
-    
+
 
 def tvdb_except(e_type, show_name):
     if e_type == 'notfound':
@@ -1055,10 +1089,9 @@ def tabd_artist_info(query='', id=''):
 
 ### List to srting ###
 def lst2str(details):
-
     for i in details:
         if isinstance(details[i], list):
-            details[i] = " / ".join(details[i])
+            details[i] = ' / '.join(details[i])
     return details
 
 
@@ -1087,10 +1120,10 @@ movie_properties = ['title', 'originaltitle', 'sorttitle', 'rating', 'studio', '
 show_properties = ['title', 'sorttitle', 'originaltitle', 'mpaa', 'rating', 'votes', 'genre', 'plot',
                    'studio', 'premiered', 'imdbnumber', 'art']
 
-season_properties = ['season', 'showtitle', 'tvshowid', 'thumbnail']
+season_properties = ['season', 'showtitle', 'tvshowid']
 
 episode_properties = ['title', 'rating', 'plot', 'director', 'writer', 'season', 'firstaired',
-                      'thumbnail', 'episode', 'tvshowid', 'showtitle', 'votes']
+                      'art', 'episode', 'tvshowid', 'showtitle', 'votes']
 
 artist_properties = ['description', 'instrument', 'style', 'mood', 'born', 'formed', 'died', 'disbanded',
                      'yearsactive', 'musicbrainzartistid', 'genre', 'thumbnail', 'fanart']

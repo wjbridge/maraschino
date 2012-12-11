@@ -84,30 +84,6 @@
           </div>
         {% endif %}
 
-        {% if show.id %}
-          <div class="control-group">
-            <label class="control-label" for="imdbnumber">
-              <a href="http://thetvdb.com/?tab=series&id={{ show.id }}" target="_blank" title="View on TVDB">
-                TVDB ID
-              </a>
-            </label>
-            <div class="controls">
-              <input id="imdbnumber" type="text" value="{{ show.id }}">
-            </div>
-          </div>
-        {% elif show.imdb_id %}
-          <div class="control-group">
-            <label class="control-label" for="imdbnumber">
-              <a href="http://www.imdb.com/title/{{ show.imdb_id }}/" target="_blank" title="View on IMDB">
-               	IMDB ID
-              </a>
-            </label>
-            <div class="controls">
-              <input id="imdbnumber" type="text" value="{{ show.imdb_id }}">
-            </div>
-          </div>
-        {% endif %}
-
     	<fieldset>
 	  </form>
 

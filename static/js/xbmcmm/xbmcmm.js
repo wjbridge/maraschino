@@ -524,8 +524,8 @@ $(document).ready(function() {
 
   // Apply changes
   $(document).on('click', '.xbmc_save', function() {
-    var form = $('.details form');
-    var title = $('.details form #id_title').val();
+    var form = $(this).parent();
+    var title = form.find('#id_title').val();
     var details = form.serialize();
     var id = $('.details #media_id').data('id');
     var type = $('.details #media_id').attr('media-type');

@@ -1,11 +1,7 @@
 <div class="episode_details span10">
   {% if episode %}
     <div class="row-fluid top_buttons">
-      <button
-        class="btn tvdb_episode_info_btn"
-        type="submit"
-        data-loading-text="Loading..."
-      >
+      <button class="btn tvdb_episode_info_btn" data-loading-text="Loading...">
         TVDB lookup
       </button>
 
@@ -14,91 +10,54 @@
       </button>
   </div>
 
-  <form class="form-horizontal span6">
-    <div id="media_id" media-type="episode" data-id="{{ episode.episodeid }}" data-tvshowid="{{ episode.tvshowid }}"></div>
-    <fieldset>
+  <div class="span4">
+    <form class="form-horizontal">
+      <div id="media_id" media-type="episode" data-id="{{ episode.episodeid }}" data-tvshowid="{{ episode.tvshowid }}"></div>
+      <fieldset>
 
-      <div class="control-group">
-        <label class="control-label" for="id_title">Title</label>
-        <div class="controls">
-          <input id="id_title" name="title" type="text" value="{{ episode.title }}">
-        </div>
-      </div>
+        {% macro control_group(name, title) %}
+          <div class="control-group">
+            <label class="control-label" for="id_{{ name }}">{{ title }}</label>
+            <div class="controls">
+              {% if name == 'plot' %}
+                <textarea type="text" id="id_{{ name }}" name="{{ name }}">{{ episode[name] }}</textarea>
+              {% else %}
+                <input id="id_{{ name }}" name="{{ name }}" type="text" value="{{ episode[name]|float|round(1, 'common') if name == 'rating' else episode[name] }}">
+              {% endif %}
+            </div>
+          </div>
+        {% endmacro %}
 
-      <div class="control-group">
-        <label class="control-label" for="id_season">Season</label>
-        <div class="controls">
-          <input id="id_season" name="season" type="text" value="{{ episode.season }}">
-        </div>
-      </div>
+        {{ control_group('title', 'Title') }}
+        {{ control_group('plot', 'Plot') }}
+        {{ control_group('firstaired', 'First Aired') }}
+        {{ control_group('rating', 'Rating') }}
+        {{ control_group('votes', 'Votes') }}
+        {{ control_group('director', 'Director') }}
+        {{ control_group('writer', 'Writer') }}
 
-      <div class="control-group">
-        <label class="control-label" for="id_episode">Episode</label>
-        <div class="controls">
-          <input id="id_episode" name="episode" type="text" value="{{ episode.episode }}">
-        </div>
-      </div>
+        {% macro hidden_input(name, art=True) %}
+          <input id="id_{{ name }}" name="{{ name }}" type="hidden" value="{{ episode['art'][name] if art else episode[name] }}">
+        {% endmacro %}
 
-      <div class="control-group">
-        <label class="control-label" for="id_plot">Plot</label>
-        <div class="controls">
-          <textarea type="text" id="id_plot" name="plot">{{ episode.plot }}</textarea>
-        </div>
-      </div>
-
-      <div class="control-group">
-        <label class="control-label" for="id_firstaired">First Aired</label>
-        <div class="controls">
-          <input id="id_firstaired" name="firstaired" type="text" value="{{ episode.firstaired }}">
-        </div>
-      </div>
-
-      <div class="control-group">
-        <label class="control-label" for="id_rating">Rating</label>
-        <div class="controls">
-          <input id="id_rating" name="rating" type="text" value="{{ episode.rating|float|round(1, 'common') }}">
-        </div>
-      </div>
-
-      <div class="control-group">
-        <label class="control-label" for="id_votes">Votes</label>
-        <div class="controls">
-          <input id="id_votes" name="votes" type="text" value="{{ episode.votes }}">
-        </div>
-      </div>
-
-      <div class="control-group">
-        <label class="control-label" for="id_director">Director</label>
-        <div class="controls">
-          <input id="id_director" name="director" type="text" value="{{ episode.director }}">
-        </div>
-      </div>
-
-      <div class="control-group">
-        <label class="control-label" for="id_writer">Writer</label>
-        <div class="controls">
-          <input id="id_writer" name="writer" type="text" value="{{ episode.writer }}">
-        </div>
-      </div>
-
-      <input id="id_thumbnail" name="thumbnail" type="hidden" value="{{ episode.thumbnail }}">
-
-    </fieldset>
-
-  </form>
+        {{ hidden_input('episode', False) }}
+        {{ hidden_input('season', False) }}
+        {{ hidden_input('thumb') }}
+        <button type="button" class="btn btn-success xbmc_save">Apply Changes</button>
+      </fieldset>
+    </form>
+  </div>
 
   <div class="span4 thumbnail">
-    <img id="thumbnail_img" src="{{ episode.thumbnail|xbmc_image }}">
+      {% if 'thumb' in episode.art %}
+        <img id="thumb_img" src="{{ episode.art.thumb|xbmc_image }}" />
+      {% else %}
+        <div align="center">Artwork not available.</div>
+      {% endif %}
     <br>
     <div class="pull-right">
       <button class="btn file_btn" data-type="episode_thumb">File</button>
       <button class="btn url_btn" data-type="episode_thumb">URL</button>
-    </div>
-  </div>
-
-  <div class="row-fluid">
-    <div class="span10">
-      <button class="btn xbmc_save" type="submit">Apply Changes</button>
     </div>
   </div>
 

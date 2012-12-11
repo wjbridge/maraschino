@@ -1071,7 +1071,7 @@ def tabd_artist_info(query='', id=''):
             return jsonify(error='Failed to retrieve info from TheAudioDB')
 
         if len(result['artists']) == 1:
-            artist = result['artists'][0]['artist']
+            artist = result['artists'][0]
             artists = False
             title = artist['strArtist']
 

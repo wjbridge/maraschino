@@ -9,7 +9,7 @@
     <link rel="apple-touch-icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
 
     <!-- Style sheets -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='less/xbmcmm/bootstrap.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='less/xbmcmm/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='less/xbmcmm/bootstrap-responsive.min.css') }}">
     <script>var LESS_WEBROOT = "{% if webroot %}{{ webroot[1:] }}/{% endif %}static";</script>
     <link rel="stylesheet/less" href="{{ url_for('static', filename='less/xbmcmm/xbmcmm.less') }}">
@@ -37,7 +37,7 @@
 
   <body>
 
-    <div class="navbar navbar-fixed-top">
+    <div class="navbar navbar-fixed-top navbar-inverse">
       <div class="navbar-inner">
         <div class="container-fluid">
           <div class="nav-collapse">

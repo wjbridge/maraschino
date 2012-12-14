@@ -21,6 +21,8 @@
             <div class="controls">
               {% if name == 'plot' %}
                 <textarea type="text" id="id_{{ name }}" name="{{ name }}">{{ episode[name] }}</textarea>
+              {% elif name == 'playcount' %}
+                <input id="id_{{ name }}" name="{{ name }}" type="checkbox" {{ 'checked' if episode.playcount }}>
               {% else %}
                 <input id="id_{{ name }}" name="{{ name }}" type="text" value="{{ episode[name]|float|round(1, 'common') if name == 'rating' else episode[name] }}">
               {% endif %}
@@ -35,6 +37,7 @@
         {{ control_group('votes', 'Votes') }}
         {{ control_group('director', 'Director') }}
         {{ control_group('writer', 'Writer') }}
+        {{ control_group('playcount', 'Mark as Watched') }}
 
         {% macro hidden_input(name, art=True) %}
           <input id="id_{{ name }}" name="{{ name }}" type="hidden" value="{{ episode['art'][name] if art else episode[name] }}">

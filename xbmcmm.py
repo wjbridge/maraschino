@@ -416,6 +416,12 @@ def xhr_xbmcmm_set_episode(episodeid):
         if request.form['thumb']:
             params['art'] = {'thumb': request.form['thumb']}
 
+        # Check playcount
+        if 'playcount' in request.form:
+            params['playcount'] = 1
+        else:
+            params['playcount'] = 0
+
     except Exception as e:
         xbmcmm_except(e)
         return jsonify(error='Invalid parameters.')
@@ -1123,7 +1129,7 @@ show_properties = ['title', 'sorttitle', 'originaltitle', 'mpaa', 'rating', 'vot
 season_properties = ['season', 'showtitle', 'tvshowid']
 
 episode_properties = ['title', 'rating', 'plot', 'director', 'writer', 'season', 'firstaired',
-                      'art', 'episode', 'tvshowid', 'showtitle', 'votes']
+                      'art', 'episode', 'tvshowid', 'showtitle', 'votes', 'playcount']
 
 artist_properties = ['description', 'instrument', 'style', 'mood', 'born', 'formed', 'died', 'disbanded',
                      'yearsactive', 'musicbrainzartistid', 'genre', 'thumbnail', 'fanart']

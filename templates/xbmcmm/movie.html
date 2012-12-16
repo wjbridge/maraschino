@@ -77,9 +77,17 @@
     </div>
 
     {% macro thumb(type, fanarttv=False, tmdb=False) %}
-      <div class="thumbnail thumb_main">
+      <div class="thumbnail thumb_main {{ type }}_thumb">
         {% if type in movie.art %}
-          <img id="{{ type }}_img" src="{{ movie['art'][type]|xbmc_image }}" />
+          <img src="{{ webroot_url('/static/images/xhrloading2.gif') }}" />
+          <script>
+            var curImg = new Image();
+            curImg.src = "{{ movie['art'][type]|xbmc_image }}";
+            curImg.id = "{{ type }}_img";
+            curImg.onload = function(){
+              $('.{{ type }}_thumb img').replaceWith(this);
+            }
+          </script>
         {% else %}
           <div align="center">Artwork not available.</div>
         {% endif %}

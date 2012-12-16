@@ -51,12 +51,20 @@
     </form>
   </div>
 
-  <div class="span4 thumbnail">
-      {% if 'thumb' in episode.art %}
-        <img id="thumb_img" src="{{ episode.art.thumb|xbmc_image }}" />
-      {% else %}
-        <div align="center">Artwork not available.</div>
-      {% endif %}
+  <div class="span4 thumbnail thumb_main thumb_thumb">
+    {% if 'thumb' in episode.art %}
+      <img src="{{ webroot_url('/static/images/xhrloading2.gif') }}" />
+      <script>
+        var curImg = new Image();
+        curImg.src = "{{ episode['art']['thumb']|xbmc_image }}";
+        curImg.id = "thumb_img";
+        curImg.onload = function(){
+          $('.thumb_thumb img').replaceWith(this);
+        }
+      </script>
+    {% else %}
+      <div align="center">Artwork not available.</div>
+    {% endif %}
     <br>
     <div class="pull-right">
       <button class="btn file_btn" data-type="episode_thumb">File</button>

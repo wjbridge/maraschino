@@ -27,6 +27,20 @@ $(document).ready(function() {
     );
   }
 
+  // Replace image
+  function replace_img(type, new_src) {
+    $('.'+type+'_thumb img').replaceWith(
+      $('<img />', {'src': WEBROOT+'/static/images/xhrloading2.gif', 'id': type+'_img'})
+    );
+
+    var newImg = new Image();
+    newImg.src = new_src;
+    newImg.id = type+"_img";
+    newImg.onload = function(){
+      $('.'+type+'_thumb img').replaceWith(this);
+    }
+  }
+
   // Image URL
   $(document).on('click', '.url_btn', function() {
     $.get(WEBROOT + '/xhr/xbmcmm_url/' + $(this).data('type'), function(data) {
@@ -41,7 +55,7 @@ $(document).ready(function() {
     var img, form_img;
 
     if (type == 'episode_thumb') {
-      img = $('.episode_details #thumbnail_img');
+      img = $('.episode_details #thumb_img');
       form_img = $('.episode_details #id_thumbnail');
     }
     else {
@@ -49,26 +63,21 @@ $(document).ready(function() {
       form_img = $('#id_'+type);
     }
 
-    img.fadeOut(200);
-    img.attr('src', url);
-    img.fadeIn(200);
-    form_img.val(url);
     $('#modal_template').modal('hide');
+    form_img.val(url);
+    replace_img(type, url);
   });
 
   // image save
   $(document).on('click', '.modal_images img', function() {
     var url = $(this).data('url');
     var type = $(this).data('type');
-    var img = $('#'+type+'_img');
+    var img = $('.details #'+type+'_img');
     var new_src = WEBROOT + '/cache/image_url/' + url.replace('http://', '');
 
-    img.fadeOut(200);
-    img.attr('src', new_src);
-    img.fadeIn(200);
-
-    $('#id_'+type).val(url);
     $('#modal_template').modal('hide');
+    $('#id_'+type).val(url);
+    replace_img(type, new_src);
   });
 
   // fanart.tv
@@ -192,9 +201,7 @@ $(document).ready(function() {
       img_checkbox.val('');
     }
     else {
-      img.fadeOut(200);
-      img.attr('src', WEBROOT+'/cache/image_url/'+img_checkbox.val().replace('http://', ''));
-      img.fadeIn(200);
+      replace_img('thumb', WEBROOT+'/cache/image_url/'+img_checkbox.val().replace('http://', ''));
     }
 
     $('.scrape_info_form .controls').children().each(function() {
@@ -238,8 +245,8 @@ $(document).ready(function() {
     var url = WEBROOT + '/cache/image_file/'+ os +'/' + path;
     var img, form_img;
 
-    if (file_type == 'episode_thumb') {
-      img = $('.episode_details #thumbnail_img');
+    if (file_type == 'thumb') {
+      img = $('.episode_details #thumb_img');
       form_img = $('.episode_details #id_thumbnail');
     }
     else {
@@ -255,12 +262,10 @@ $(document).ready(function() {
       var os = 'win';
     }
 
-    img.fadeOut(200);
-    img.attr('src', url);
-    img.fadeIn(200);
-
-    form_img.val(path);
     $('#modal_template').modal('hide');
+    form_img.val(path);
+    replace_img(file_type, url);
+
   });
 
   // Filter

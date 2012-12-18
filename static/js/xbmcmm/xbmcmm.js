@@ -55,8 +55,9 @@ $(document).ready(function() {
     var img, form_img;
 
     if (type == 'episode_thumb') {
+      type = 'thumb';
       img = $('.episode_details #thumb_img');
-      form_img = $('.episode_details #id_thumbnail');
+      form_img = $('.episode_details #id_thumb');
     }
     else {
       img = $('#'+type+'_img');
@@ -242,12 +243,12 @@ $(document).ready(function() {
 
   $(document).on('click', '.file_save_btn', function(){
     var path = $('.file_list').children('.active').data('path');
-    var url = WEBROOT + '/cache/image_file/'+ os +'/' + path;
     var img, form_img;
 
-    if (file_type == 'thumb') {
+    if (file_type == 'episode_thumb') {
+      file_type = 'thumb';
       img = $('.episode_details #thumb_img');
-      form_img = $('.episode_details #id_thumbnail');
+      form_img = $('.episode_details #id_thumb');
     }
     else {
       img = $('#'+file_type+'_img');
@@ -264,7 +265,7 @@ $(document).ready(function() {
 
     $('#modal_template').modal('hide');
     form_img.val(path);
-    replace_img(file_type, url);
+    replace_img(file_type, WEBROOT + '/cache/image_file/'+ os +'/' + path);
 
   });
 

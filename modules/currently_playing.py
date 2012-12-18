@@ -26,12 +26,15 @@ def xhr_currently_playing():
         if active_player[0]['type'] == 'audio':
             currently_playing = xbmc.Player.GetItem(playerid = 0, properties = ['title', 'duration', 'fanart', 'artist', 'albumartist', 'album', 'track', 'artistid', 'albumid', 'thumbnail', 'year'])['item']
 
+            if 'artist' in currently_playing and isinstance(currently_playing['artist'], list): #Frodo
+                currently_playing['artist'] = " / ".join(currently_playing['artist'])
+
         fanart = currently_playing['fanart']
         itemart = currently_playing['thumbnail']
 
     except:
         return jsonify({ 'playing': False })
-	
+
     return render_template('currently_playing.html',
         currently_playing = currently_playing,
         fanart = fanart,
@@ -53,7 +56,7 @@ def xhr_current_playlist():
 
     active_player = xbmc.Player.GetActivePlayers()
     playerid = active_player[0]['playerid']
-    player_info = xbmc.Player.GetProperties(playerid=playerid, properties=['position'])
+    player_info = xbmc.Player.GetProperties(playerid=playerid, properties=['position', 'shuffled', 'repeat'])
     currently_playing = xbmc.Player.GetItem(playerid = playerid)['item']
     playlist = xbmc.Playlist.GetItems(playlistid = playerid)
 
@@ -69,7 +72,11 @@ def xhr_current_playlist():
 
     playlist['id'] = playerid
 
-    return render_template('playlist_dialog.html', playlist=playlist)
+    return render_template('playlist_dialog.html',
+        playlist=playlist,
+        shuffled=player_info['shuffled'],
+        repeat=player_info['repeat']
+    )
 
 @app.route('/xhr/synopsis')
 @requires_auth

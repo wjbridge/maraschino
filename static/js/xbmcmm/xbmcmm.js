@@ -417,6 +417,35 @@ $(document).ready(function() {
     });
   });
 
+  // Tags
+  $(document).on('click', '.tag_save', function() {
+    var tags = [];
+    var tag_input =  $('.details #id_tag');
+
+    $('.avail_tags :checked').each(function() {
+      tags.push($(this).val());
+    });
+
+    tag_input.val(tags);
+    tag_input.val(tag_input.val().replace(/,/g, ' / '));
+    $('#modal_template').modal('hide');
+  });
+
+  $(document).on('click', '.add_tag_btn', function() {
+    var exising = $('.details #id_tag').val();
+    var media =  $(this).data('media_type');
+
+    $.post(WEBROOT + '/xhr/xbmcmm_tags/' + media + '/', {exist: exising}, function(data) {
+      if (!data.error) {
+        $('#modal_template').replaceWith(data);
+        $('#modal_template').modal('show');
+      }
+      else {
+        alert_popup('error', data.error);
+      }
+    });
+  });
+
   // Export library
   $(document).on('click', '.library_export_btn', function() {
     $.get(WEBROOT + '/xhr/xbmcmm/export/' + $(this).data('library'), function(data) {

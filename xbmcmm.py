@@ -235,6 +235,31 @@ def xhr_xbmcmm_get_genres(file_type, media):
     )
 
 
+### Get tags ###
+@app.route('/xhr/xbmcmm_tags/<media>/', methods=['POST'])
+@requires_auth
+def xhr_xbmcmm_get_tags(media):
+    xbmc = jsonrpclib.Server(server_api_address())
+    tags = []
+    if media == 'movie':
+        media_list = xbmc.VideoLibrary.GetMovies(properties=['tag'])['movies']
+    elif media == 'tvshow':
+        media_list = xbmc.VideoLibrary.GetTVShows(properties=['tag'])['tvshows']
+
+    for x in media_list:
+        if x['tag']:
+            for y in x['tag']:
+                if y not in tags:
+                    tags.append(y)
+
+    existing = [x.strip() for x in request.form['exist'].split('/') if x != '']
+
+    return render_template('xbmcmm/modals/tags.html',
+        existing=existing,
+        tags=sorted(tags)
+    )
+
+
 ### Remove library item ###
 @app.route('/xhr/xbmcmm/remove/<media>/<int:id>')
 def xhr_xbmcmm_remove(media, id):

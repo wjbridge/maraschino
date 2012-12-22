@@ -76,7 +76,6 @@ def xbmc_media_list(type):
         return xbmc.AudioLibrary.GetArtists(sort=sort)
 
 
-
 ### Get media details ###
 @app.route('/xhr/xbmcmm/movie/<int:id>/')
 @requires_auth
@@ -99,6 +98,7 @@ def xhr_xbmcmm_movie_details(id):
     return render_template('/xbmcmm/movie.html',
         item = item,
     )
+
 
 @app.route('/xhr/xbmcmm/tvshow/<int:id>/')
 @requires_auth
@@ -234,6 +234,7 @@ def xhr_xbmcmm_get_genres(file_type, media):
         genres=sorted(genres)
     )
 
+
 ### Remove library item ###
 @app.route('/xhr/xbmcmm/remove/<media>/<int:id>')
 def xhr_xbmcmm_remove(media, id):
@@ -360,6 +361,7 @@ def xhr_xbmcmm_set_tvshow(tvshowid):
             'mpaa': request.form['mpaa'],
             'studio': str2lst(request.form['studio']),
             'votes': request.form['votes'],
+            'tag': str2lst(request.form['tag']),
         }
 
         # Only set artwork if it exists
@@ -1124,7 +1126,7 @@ movie_properties = ['title', 'originaltitle', 'sorttitle', 'rating', 'studio', '
                     'imdbnumber', 'writer', 'runtime', 'votes', 'tag']
 
 show_properties = ['title', 'sorttitle', 'originaltitle', 'mpaa', 'rating', 'votes', 'genre', 'plot',
-                   'studio', 'premiered', 'imdbnumber', 'art']
+                   'studio', 'premiered', 'imdbnumber', 'art', 'tag']
 
 season_properties = ['season', 'showtitle', 'tvshowid']
 

@@ -41,6 +41,7 @@
         {{ control_group('votes', 'Votes') }}
         {{ control_group('mpaa', 'Certification') }}
         {{ control_group('studio', 'Studio', 'Separate with " / "') }}
+        {{ control_group('tag', 'Tags', 'Separate with " / "') }}
 
         {% macro hidden_input(name, art=True) %}
           <input id="id_{{ name }}" name="{{ name }}" type="hidden" value="{{ show['art'][name] if art else show[name] }}">

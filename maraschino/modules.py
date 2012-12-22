@@ -775,7 +775,7 @@ def add_module_dialog():
                 available_modules.remove(available_module)
                 break
 
-    return render_template('add_module_dialog.html',
+    return render_template('dialogs/add_module_dialog.html',
         available_modules = available_modules,
     )
 
@@ -898,7 +898,7 @@ def module_settings_dialog(name):
                 if 'xbmc_servers' in s:
                     s['options'] = module_get_xbmc_servers()
 
-        return render_template('module_settings_dialog.html',
+        return render_template('dialogs/module_settings_dialog.html',
             module = module,
         )
 
@@ -1005,7 +1005,7 @@ def extra_settings_dialog(dialog_type, updated=False):
          if setting:
              s['value'] = setting.value
 
-    return render_template('extra_settings_dialog.html',
+    return render_template('dialogs/extra_settings_dialog.html',
         dialog_title=dialog_title,
         dialog_text=dialog_text,
         dialog_type=dialog_type,
@@ -1035,7 +1035,7 @@ def server_settings_dialog(server_id=None):
     # GET
 
     if request.method == 'GET':
-        return render_template('server_settings_dialog.html',
+        return render_template('dialogs/server_settings_dialog.html',
             server = server,
         )
 

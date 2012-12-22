@@ -15,7 +15,7 @@
       <div id="media_id" media-type="episode" data-id="{{ episode.episodeid }}" data-tvshowid="{{ episode.tvshowid }}"></div>
       <fieldset>
 
-        {% macro control_group(name, title) %}
+        {% macro control_group(name, title, tooltip=None) %}
           <div class="control-group">
             <label class="control-label" for="id_{{ name }}">{{ title }}</label>
             <div class="controls">
@@ -24,7 +24,7 @@
               {% elif name == 'playcount' %}
                 <input id="id_{{ name }}" name="{{ name }}" type="checkbox" {{ 'checked' if episode.playcount }}>
               {% else %}
-                <input id="id_{{ name }}" name="{{ name }}" type="text" value="{{ episode[name]|float|round(1, 'common') if name == 'rating' else episode[name] }}">
+                <input {% if tooltip %}rel="tooltip" title="{{ tooltip }}"{% endif %} id="id_{{ name }}" name="{{ name }}" type="text" value="{{ episode[name]|float|round(1, 'common') if name == 'rating' else episode[name] }}">
               {% endif %}
             </div>
           </div>
@@ -35,8 +35,8 @@
         {{ control_group('firstaired', 'First Aired') }}
         {{ control_group('rating', 'Rating') }}
         {{ control_group('votes', 'Votes') }}
-        {{ control_group('director', 'Director') }}
-        {{ control_group('writer', 'Writer') }}
+        {{ control_group('director', 'Director', 'Separate with " / "') }}
+        {{ control_group('writer', 'Writer', 'Separate with " / "') }}
         {{ control_group('playcount', 'Mark as Watched') }}
 
         {% macro hidden_input(name, art=True) %}
@@ -74,3 +74,4 @@
 
   {% endif %}
 </div>
+<script>$('input[title]').tooltip({'placement': 'right'})</script>

@@ -70,6 +70,8 @@ def xbmc_media_list(type):
 
     if type == 'movies':
         return xbmc.VideoLibrary.GetMovies(sort=sort)
+    if type == 'moviesets':
+        return xbmc.VideoLibrary.GetMovieSets(sort=sort)
     elif type == 'shows':
         return xbmc.VideoLibrary.GetTVShows(sort=sort)
     else:
@@ -96,7 +98,31 @@ def xhr_xbmcmm_movie_details(id):
     item['moviedetails'] = lst2str(item['moviedetails'])
 
     return render_template('/xbmcmm/movie.html',
-        item = item,
+        item=item
+    )
+
+@app.route('/xhr/xbmcmm/movieset/<int:id>/')
+@requires_auth
+def xhr_xbmcmm_movieset_details(id):
+    xbmc = jsonrpclib.Server(server_api_address())
+
+    try:
+        if id == 0:
+            movieset = {'setid': 0, 'label': 'New Set', 'movies': []}
+        else:
+            movieset = xbmc.VideoLibrary.GetMovieSetDetails(setid=id)['setdetails']
+        movies = xbmc.VideoLibrary.GetMovies(
+            sort={'method': 'label', 'ignorearticle': True},
+            properties=['set']
+        )['movies']
+
+    except Exception as e:
+        xbmcmm_except(e)
+        return jsonify(error=xbmc_error)
+
+    return render_template('/xbmcmm/movieset.html',
+        movieset=movieset,
+        movies=movies
     )
 
 
@@ -120,7 +146,7 @@ def xhr_xbmcmm_show_details(id):
     item['tvshowdetails'] = lst2str(item['tvshowdetails'])
 
     return render_template('/xbmcmm/tvshow-base.html',
-        item = item,
+        item=item
     )
 
 
@@ -141,7 +167,7 @@ def xhr_xbmcmm_season_details(id, season):
         return jsonify(error=xbmc_error)
 
     return render_template('/xbmcmm/tvshow-season.html',
-        item = item,
+        item=item
     )
 
 
@@ -157,7 +183,7 @@ def xhr_xbmcmm_episode_details(id):
         return jsonify(error=xbmc_error)
 
     return render_template('/xbmcmm/tvshow-episode.html',
-        episode = lst2str(item),
+        episode=lst2str(item)
     )
 
 
@@ -179,7 +205,7 @@ def xhr_xbmcmm_artist_details(id):
     item['artistdetails'] = lst2str(item['artistdetails'])
 
     return render_template('/xbmcmm/music-base.html',
-        item = item,
+        item=item
     )
 
 @app.route('/xhr/xbmcmm/album/<int:id>/')
@@ -196,7 +222,7 @@ def xhr_xbmcmm_album_details(id):
     item['albumdetails'] = lst2str(item['albumdetails'])
 
     return render_template('/xbmcmm/music-album.html',
-        item = item,
+        item=item
     )
 
 
@@ -261,13 +287,64 @@ def xhr_xbmcmm_get_tags(media):
 
 
 ### Remove library item ###
-@app.route('/xhr/xbmcmm/remove/<media>/<int:id>')
+@app.route('/xhr/xbmcmm/remove/<media>/<int:id>/')
 def xhr_xbmcmm_remove(media, id):
     return render_template('xbmcmm/modals/confirm.html',
         remove=True,
         media=media,
         id=id
     )
+
+
+### Modify set modal ###
+@app.route('/xhr/xbmcmm/modify_set_modal/<action>/')
+def xhr_xbmcmm_modify_set_modal(action):
+    return render_template('xbmcmm/modals/modify_set.html',
+        action=action
+    )
+
+
+### Modify set ###
+@app.route('/xhr/xbmcmm/modify_set/<action>/<int:movieid>', methods=['GET'])
+@app.route('/xhr/xbmcmm/modify_set/<action>/', methods=['POST'])
+def xhr_xbmcmm_modify_set(action, movieid=None):
+    xbmc = jsonrpclib.Server(server_api_address())
+
+    try:
+        if request.method == 'GET':
+            params = {'movieid': movieid}
+
+            if action == 'add':
+                params['set'] = request.args['setlabel']
+            else:
+                params['set'] = ''
+
+            xbmc.VideoLibrary.SetMovieDetails(**params)
+
+
+        else:
+            for movieid in request.form.getlist('movies[]'):
+                params = {'movieid': int(movieid)}
+
+                if action == 'rename':
+                    setlabel = request.form['setlabel']
+                    params['set'] = request.form['setlabel']
+                else:
+                    params['set'] = ''
+
+                xbmc.VideoLibrary.SetMovieDetails(**params)
+
+        if action == 'add' or action == 'rename':
+            movies = xbmc.VideoLibrary.GetMovies(properties=['set', 'setid'])['movies']
+            setid = [x['setid'] for x in movies if x['set'] == params['set']][0]
+
+            return jsonify(success=True, setid=setid)
+
+        return jsonify(success=True)
+
+    except Exception as e:
+        xbmcmm_except(e)
+        return jsonify(failed=True)
 
 
 ### Convert URL to XBMC URL ###

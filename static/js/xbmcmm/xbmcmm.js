@@ -537,6 +537,108 @@ $(document).ready(function() {
     });
   });
 
+  // Remove from movie set
+  $(document).on('click', '.remove_from_set', function() {
+    var movieid = $(this).attr('id');
+    var setid = $('.details .setid').attr('id');
+    var setlength = $('.details .setid').data('length');
+
+    $.get(WEBROOT + '/xhr/xbmcmm/modify_set/remove/' + movieid, function(data) {
+      if (data.success) {
+        if (setlength === 1) {
+          window.location.reload();
+        }
+        else {
+          $('.media_list #'+setid).click();
+        }
+      }
+      else {
+        alert_popup('error', 'Failed to remove movie from set');
+      }
+    });
+  });
+
+  // Add movie to set
+  $(document).on('click', '.add_to_set', function() {
+    var movieid = $(this).attr('id');
+    var setid = $('.details .setid').attr('id');
+    var setlabel = $('.details .setid').data('label');
+
+    if (setid === '0' && $('#setlabel').val()) {
+      setlabel = $('#setlabel').val();
+    }
+
+    $.get(WEBROOT + '/xhr/xbmcmm/modify_set/add/' + movieid + '?setlabel=' + setlabel, function(data) {
+      if (data.success) {
+        if (setid === '0') {
+          setid = data.setid;
+          $('.media_list #0').removeClass('active');
+          $('<li class="item active" data-type="movieset" id="'+setid+'"><a href="#">New Set</a></li>').appendTo('.media_list');
+        }
+
+        $('.media_list #'+setid).click();
+      }
+      else {
+        alert_popup('error', 'Failed to add movie to set');
+      }
+    });
+  });
+
+  // Modify movie set modal
+  $(document).on('click', '.set_list .modify_set', function() {
+    var action = $(this).data('action');
+
+    $.get(WEBROOT + '/xhr/xbmcmm/modify_set_modal/' + action, function(data) {
+      $('#modal_template').replaceWith(data);
+
+      if (action === 'rename') {
+        $('#modal_template .setlabel').val($('.details .setid').data('label'));
+      }
+
+      $('#modal_template').modal('show');
+    });
+  });
+
+  // Modify movie set final
+  $(document).on('click', '#modal_template .confirm_modify_set', function() {
+    var setid = $('.details .setid').attr('id');
+    var action = $(this).data('action');
+    var params = {'movies': []};
+    console.log('pressed');
+
+    $('.details .set_list ul li.item').each(function () {
+      params['movies'].push($(this).attr('id'));
+    });
+
+    if (action === 'rename') {
+      var setlabel = $('#modal_template .setlabel').val();
+
+      if (setlabel) {
+        params['setlabel'] = setlabel;
+      }
+      else {
+        alert_popup('error', 'You must input a new name');
+      }
+    }
+
+    $.post(WEBROOT + '/xhr/xbmcmm/modify_set/' + action + '/', params, function(data){
+      if (data.success) {
+        if (action === 'rename') {
+          $('.media_list #'+setid+' a').text(setlabel);
+          $('.media_list #'+setid).attr('id', data.setid);
+          $('.media_list #'+data.setid).click();
+          $('#modal_template .close').click();
+        }
+        else {
+          window.location.reload();
+        }
+      }
+      else {
+        alert_popup('error', 'Failed to '+action+' set');
+      }
+    });
+  });
+
   // Validate numeric inputs
   $(document).on('change keydown keyup', 'form input', function(e){
     var input = $(this);

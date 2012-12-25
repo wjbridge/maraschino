@@ -53,6 +53,13 @@
                   Movies
                 </a>
               </li>
+              </li>
+              <li class="divider-vertical"></li>
+              <li {% if type == 'moviesets' %}class="active"{% endif %}>
+                <a href="{{webroot}}/xbmcmm/moviesets">
+                  Movie Sets
+                </a>
+              </li>
               <li class="divider-vertical"></li>
               <li {% if type == 'shows' %}class="active"{% endif %}>
                 <a href="{{webroot}}/xbmcmm/shows">

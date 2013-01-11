@@ -403,7 +403,7 @@ def xhr_xbmcmm_set_movie(movieid):
             'tag': str2lst(request.form['tag']),
             'trailer': request.form['trailer'],
             'writer': str2lst(request.form['writer']),
-            'runtime': request.form['runtime'],
+            'runtime': int(request.form['runtime']),
             'votes': request.form['votes'],
         }
 

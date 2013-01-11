@@ -642,7 +642,7 @@ $(document).ready(function() {
   // Validate numeric inputs
   $(document).on('change keydown keyup', 'form input', function(e){
     var input = $(this);
-    var numbers = ['year', 'rating', 'season', 'episode']
+    var numbers = ['year', 'rating', 'season', 'episode', 'runtime']
 
     $.each(numbers, function() {
       if (input.attr('name') == this) {

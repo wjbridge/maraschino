@@ -1,9 +1,8 @@
-<div class="season_details">
+<div class="season_details row-fluid">
 
   {% if item.episodes %}
-    <ul class="nav nav-list span2 episode_list">
+    <ul class="span3 episode_list">
       {% for episode in item.episodes %}
-        <li class="divider"></li>
         <li id="{{ episode.episodeid }}"><a href="#">{{ episode.label }}</a></li>
       {% endfor %}
     </ul>

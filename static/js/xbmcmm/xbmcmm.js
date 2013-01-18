@@ -82,7 +82,7 @@ $(document).ready(function() {
   // fanart.tv
   $(document).on('click', '.fanarttv_btn', function() {
     var btn = $(this);
-    var id = $('.main form #id_imdbnumber').val();
+    var id = $('.main #id_imdbnumber').val();
     btn.button('loading');
     $.get(WEBROOT + '/xhr/fanarttv/' + btn.data('media') + '/' + btn.data('type') + '/' + id, function(data) {
       if (!data.error) {
@@ -99,7 +99,7 @@ $(document).ready(function() {
   // tmdb
   $(document).on('click', '.tmdb_info_btn', function() {
     var btn = $(this);
-    var id = $('.main form #id_imdbnumber').val();
+    var id = $('.main #id_imdbnumber').val();
     btn.button('loading');
     $.get(WEBROOT + '/xhr/tmdb/' + id, function(data) {
       if (!data.error) {
@@ -115,7 +115,7 @@ $(document).ready(function() {
 
   $(document).on('click', '.tmdb_img_btn', function() {
     var btn = $(this);
-    var id = $('.main form #id_imdbnumber').val();
+    var id = $('.main #id_imdbnumber').val();
     btn.button('loading');
     $.get(WEBROOT + '/xhr/tmdb/images/'+ btn.data('type') + '/' + id, function(data) {
       if (!data.error) {
@@ -132,8 +132,8 @@ $(document).ready(function() {
   // tvdb
   $(document).on('click', '.tvdb_info_btn', function() {
     var btn = $(this);
-    var title = $('.main form #id_title').val();
-    var id = $('.main form #id_imdbnumber').val();
+    var title = $('.main #id_title').val();
+    var id = $('.main #id_imdbnumber').val();
 
     btn.button('loading');
     $.get(WEBROOT + '/xhr/tvdb_show/' + title + '/' + id, function(data) {
@@ -146,8 +146,8 @@ $(document).ready(function() {
   $(document).on('click', '.tvdb_img_btn', function() {
     var btn = $(this);
     var type = btn.data('type');
-    var title = $('.main form #id_title').val();
-    var id = $('.main form #id_imdbnumber').val();
+    var title = $('.main #id_title').val();
+    var id = $('.main #id_imdbnumber').val();
 
     btn.button('loading');
     $.get(WEBROOT + '/xhr/tvdb_show/' + title + '/' + id + '?images=' + type, function(data) {
@@ -185,7 +185,7 @@ $(document).ready(function() {
   $(document).on('click', '.scrape_info_save_btn', function() {
     $('.scrape_info_form .controls').children().each(function() {
       if ($(this).val() !== '') {
-        $('form #id_'+$(this).attr('id')).val($(this).val());
+        $('#id_'+$(this).attr('id')).val($(this).val());
       }
     });
     $('#modal_template').modal('hide');
@@ -205,7 +205,7 @@ $(document).ready(function() {
 
     $('.scrape_info_form .controls').children().each(function() {
       if ($(this).val() !== '') {
-        $('.episode_details form #id_'+$(this).attr('id')).val($(this).val());
+        $('.episode_details #id_'+$(this).attr('id')).val($(this).val());
       }
     });
 
@@ -282,15 +282,20 @@ $(document).ready(function() {
 
   // Click media list item
   $(document).on('click', '.media_list .item', function() {
-    var li = this;
-    $.get(WEBROOT + '/xhr/xbmcmm/' + $(this).data('type') + '/' + $(this).attr('id'), function(data) {
-      if (!data.error) {
-        $('.media_list .item').removeClass('active');
-        $(li).addClass('active');
-        $('.main').replaceWith(data);
-      } else {
-        alert_popup('error', data.error);
-      }
+    var li = $(this);
+    $('.media_list .item').removeClass('active');
+    li.addClass('active');
+    $('.main').fadeOut(100, function(){
+      $('.main').fadeIn().html("<center class='loading'> Loading... </center>");
+      $.get(WEBROOT + '/xhr/xbmcmm/' + li.data('type') + '/' + li.attr('id'), function(data) {
+        if (!data.error) {
+          $('.main').fadeOut(100, function(){
+            $('.main').replaceWith(data);
+          })
+        } else {
+          alert_popup('error', data.error);
+        }
+      });
     });
   });
 
@@ -325,9 +330,9 @@ $(document).ready(function() {
   $(document).on('click', '.episode_list li', function() {
     var li = $(this);
     $('.episode_list li').removeClass('active');
+    li.addClass('active');
     $.get(WEBROOT + '/xhr/xbmcmm/episode/' + $(this).attr('id'), function(data) {
       if (!data.error) {
-        li.addClass('active');
         $('.episode_details').replaceWith(data);
       }
       else {
@@ -635,7 +640,7 @@ $(document).ready(function() {
   });
 
   // Validate numeric inputs
-  $(document).on('change keydown keyup', 'form input', function(e){
+  $(document).on('change keydown keyup', 'input', function(e){
     var input = $(this);
     var numbers = ['year', 'rating', 'season', 'episode', 'runtime'];
 

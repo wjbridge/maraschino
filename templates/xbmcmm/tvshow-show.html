@@ -1,38 +1,66 @@
-{% if item.tvshowdetails %}
-  {% set show = item.tvshowdetails %}
-  <div class="row-fluid top_buttons">
-    <button class="btn tvdb_info_btn" data-loading-text="Loading...">
-      TVDB lookup
-    </button>
+{% macro thumb(type, fanarttv=False, tvdb=False) %}
+  <div class="thumbnail thumb_main {{ type }}_thumb">
+    <h3>{{ type|title }}</h3>
+    {% if type in show.art %}
+      <img src="{{ webroot_url('/static/images/xhrloading2.gif') }}" />
+      <script>
+        var curImg = new Image();
+          curImg.src = "{{ show['art'][type]|xbmc_image }}";
+        curImg.id = "{{ type }}_img";
+        curImg.onload = function(){
+          $('.{{ type }}_thumb img').replaceWith(this);
+        }
+      </script>
+    {% else %}
+      <div class="image">Artwork not available.</div>
+    {% endif %}
 
-    <button class="btn btn-danger pull-right remove_item">
-      Remove show
-    </button>
+    <div class="row-fluid">
+      <div class="span12">
+        <button class="btn file_btn span3" data-type="{{ type }}">File</button>
+        <button class="btn span3 url_btn" data-type="{{ type }}">URL</button>
+
+        {% if fanarttv %}
+          <button class="btn span3 fanarttv_btn" data-type="{{ type }}" data-media="series" data-id="{{ show.imdbnumber }}">fanart.tv</button>
+        {% endif %}
+
+        {% if tmdb %}
+         <button class="btn span3 tmdb_img_btn" data-type="{{ type }}" data-id="{{ show.imdbnumber }}">TMDB</button>
+        {% endif %}
+      </div>
+    <div class="clearfix"></div>
+    </div>
+  </div>
+{% endmacro %}
+{% macro control_group(name, title, tooltip=None) %}
+  <div class="control-group">
+    <label class="control-label" for="id_{{ name }}">{{ title }}</label>
+    <div class="controls">
+      {% if name == 'plot' %}
+        <textarea type="text" id="id_{{ name }}" name="{{ name }}" class="span12" rows="4">{{ show[name] }}</textarea>
+      {% else %}
+        <input {% if tooltip %}rel="tooltip" title="{{ tooltip }}"{% endif %} id="id_{{ name }}" name="{{ name }}" type="text" value="{{ show[name]|float|round(1, 'common') if name == 'rating' else show[name] }}">
+      {% endif %}
+      {% if name == 'genre' %}
+        <button class="btn add_genre_btn" data-file_type="video" data-media_type="tvshow" type="button">+</button>
+      {% elif name == 'tag' %}
+        <button class="btn add_tag_btn" data-media_type="tvshow" type="button">+</button>
+      {% endif %}
+    </div>
+  </div>
+{% endmacro %}
+
+{% if item.tvshowdetails %}
+  <div class="pull-right" style="margin-top: -50px;">
+    <button class="btn tvdb_info_btn" data-loading-text="Loading...">TVDB lookup</button>
+    <button class="btn btn-danger remove_item">Remove show</button>
   </div>
 
-  <div class="span4">
-    <form class="form-horizontal">
-      <div id="media_id" media-type="tvshow" data-id="{{ item.tvshowdetails.tvshowid }}"></div>
-      <fieldset>
-
-        {% macro control_group(name, title, tooltip=None) %}
-          <div class="control-group">
-            <label class="control-label" for="id_{{ name }}">{{ title }}</label>
-            <div class="controls">
-              {% if name == 'plot' %}
-                <textarea type="text" id="id_{{ name }}" name="{{ name }}">{{ show[name] }}</textarea>
-              {% else %}
-                <input {% if tooltip %}rel="tooltip" title="{{ tooltip }}"{% endif %} id="id_{{ name }}" name="{{ name }}" type="text" value="{{ show[name]|float|round(1, 'common') if name == 'rating' else show[name] }}">
-              {% endif %}
-              {% if name == 'genre' %}
-                <button class="btn add_genre_btn" data-file_type="video" data-media_type="tvshow" type="button">+</button>
-              {% elif name == 'tag' %}
-                <button class="btn add_tag_btn" data-media_type="tvshow" type="button">+</button>
-              {% endif %}
-            </div>
-          </div>
-        {% endmacro %}
-
+  {% set show = item.tvshowdetails %}
+  <div class="container-fluid">
+    <div class="row-fluid">
+      <div class="span4">
+        <div id="media_id" media-type="tvshow" data-id="{{ item.tvshowdetails.tvshowid }}"></div>
         {{ control_group('title', 'Title') }}
         {{ control_group('originaltitle', 'Original Title') }}
         {{ control_group('sorttitle', 'Sort Title') }}
@@ -59,57 +87,21 @@
         {{ hidden_input('characterart') }}
         {{ hidden_input('landscape') }}
         <button type="button" class="btn btn-success xbmc_save">Apply Changes</button>
-      </fieldset>
-    </form>
-  </div>
-
-  {% macro thumb(type, fanarttv=False, tvdb=False) %}
-    <div class="thumbnail thumb_main {{ type }}_thumb">
-      {% if type in show.art %}
-          <img src="{{ webroot_url('/static/images/xhrloading2.gif') }}" />
-          <script>
-            var curImg = new Image();
-            curImg.src = "{{ show['art'][type]|xbmc_image }}";
-            curImg.id = "{{ type }}_img";
-            curImg.onload = function(){
-              $('.{{ type }}_thumb img').replaceWith(this);
-            }
-          </script>
-      {% else %}
-        <div align="center">Artwork not available.</div>
-      {% endif %}
-      <br>
-      <b>{{ type|title }}</b>
-
-      <div class="pull-right">
-        <button class="btn file_btn" data-type="{{ type }}">File</button>
-        <button class="btn url_btn" data-type="{{ type }}">URL</button>
-
-        {% if fanarttv %}
-          <button class="btn fanarttv_btn" data-type="{{ type }}" data-media="series" data-id="{{ show.imdbnumber }}">fanart.tv</button>
-        {% endif %}
-
-        {% if tvdb %}
-          <button class="btn tvdb_img_btn" data-type="{{ type }}" data-id="{{ show.imdbnumber }}">TVDB</button>
-        {% endif %}
       </div>
 
+      <div class="span4">
+        {{ thumb('fanart', fanarttv=True, tvdb=True) }}
+        {{ thumb('banner', fanarttv=True, tvdb=True) }}
+        {{ thumb('clearart', fanarttv=True) }}
+        {{ thumb('clearlogo', fanarttv=True) }}
+      </div>
+
+      <div class="span4">
+        {{ thumb('poster', tvdb=True) }}
+        {{ thumb('characterart', fanarttv=True) }}
+        {{ thumb('landscape', fanarttv=True) }}
+      </div>
     </div>
-    <br>
-  {% endmacro %}
-
-  <div class="span4">
-    {{ thumb('fanart', fanarttv=True, tvdb=True) }}
-    {{ thumb('banner', fanarttv=True, tvdb=True) }}
-    {{ thumb('clearart', fanarttv=True) }}
-    {{ thumb('clearlogo', fanarttv=True) }}
   </div>
-
-  <div class="span3">
-    {{ thumb('poster', tvdb=True) }}
-    {{ thumb('characterart', fanarttv=True) }}
-    {{ thumb('landscape', fanarttv=True) }}
-  </div>
-
 {% endif %}
 <script>$('input[title]').tooltip({'placement': 'right'})</script>

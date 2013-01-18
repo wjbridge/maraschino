@@ -1,4 +1,4 @@
-<div class="details well span10">
+<div class="main">
   {% if item.tvshowdetails %}
     <ul id="tabs" class="nav nav-tabs" data-tabs="tabs">
       <li class="active tvshow_tab" data-id="{{ item.tvshowdetails.tvshowid }}">
@@ -13,7 +13,7 @@
       {% endif %}
     </ul>
 
-    <div id="my-tab-content" class="tab-content">
+    <div class="tab-content">
       {% if item.seasons %}
         {% for season in item.seasons|reverse %}
           <div class="tab-pane" id="season{{ season.season }}">

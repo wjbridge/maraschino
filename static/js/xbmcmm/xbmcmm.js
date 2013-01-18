@@ -267,7 +267,7 @@ $(document).ready(function() {
   });
 
   // Filter
-  $(document).on('change keydown keyup input', '.media_list .filter', function(e){
+  $(document).on('change keydown keyup input', '.filter', function(e){
     var filter = $(this).val().toLowerCase();
     $('.media_list .item').filter(function(index) {
       return $(this).text().toLowerCase().indexOf(filter) < 0;

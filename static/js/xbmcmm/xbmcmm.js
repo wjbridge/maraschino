@@ -3,13 +3,11 @@ $(document).ready(function() {
   // Switch XBMC Server
   $(document).on('click', '.switch_server', function() {
     var li = $(this);
-
     $.get(WEBROOT + '/xhr/switch_server/' + $(this).data('server_id'), function(data) {
       if (data.status === 'error') {
         alert_popup('error', 'There was an error switching XBMC servers.');
         return;
       }
-
       window.location.reload();
     });
   });
@@ -38,7 +36,7 @@ $(document).ready(function() {
     newImg.id = type+"_img";
     newImg.onload = function(){
       $('.'+type+'_thumb img').replaceWith(this);
-    }
+    };
   }
 
   // Image URL
@@ -73,7 +71,7 @@ $(document).ready(function() {
   $(document).on('click', '.modal_images img', function() {
     var url = $(this).data('url');
     var type = $(this).data('type');
-    var img = $('.details #'+type+'_img');
+    var img = $('.main #'+type+'_img');
     var new_src = WEBROOT + '/cache/image_url/' + url.replace('http://', '');
 
     $('#modal_template').modal('hide');
@@ -84,7 +82,7 @@ $(document).ready(function() {
   // fanart.tv
   $(document).on('click', '.fanarttv_btn', function() {
     var btn = $(this);
-    var id = $('.details form #id_imdbnumber').val();
+    var id = $('.main form #id_imdbnumber').val();
     btn.button('loading');
     $.get(WEBROOT + '/xhr/fanarttv/' + btn.data('media') + '/' + btn.data('type') + '/' + id, function(data) {
       if (!data.error) {
@@ -101,7 +99,7 @@ $(document).ready(function() {
   // tmdb
   $(document).on('click', '.tmdb_info_btn', function() {
     var btn = $(this);
-    var id = $('.details form #id_imdbnumber').val();
+    var id = $('.main form #id_imdbnumber').val();
     btn.button('loading');
     $.get(WEBROOT + '/xhr/tmdb/' + id, function(data) {
       if (!data.error) {
@@ -117,7 +115,7 @@ $(document).ready(function() {
 
   $(document).on('click', '.tmdb_img_btn', function() {
     var btn = $(this);
-    var id = $('.details form #id_imdbnumber').val();
+    var id = $('.main form #id_imdbnumber').val();
     btn.button('loading');
     $.get(WEBROOT + '/xhr/tmdb/images/'+ btn.data('type') + '/' + id, function(data) {
       if (!data.error) {
@@ -134,8 +132,8 @@ $(document).ready(function() {
   // tvdb
   $(document).on('click', '.tvdb_info_btn', function() {
     var btn = $(this);
-    var title = $('.details form #id_title').val();
-    var id = $('.details form #id_imdbnumber').val();
+    var title = $('.main form #id_title').val();
+    var id = $('.main form #id_imdbnumber').val();
 
     btn.button('loading');
     $.get(WEBROOT + '/xhr/tvdb_show/' + title + '/' + id, function(data) {
@@ -148,8 +146,8 @@ $(document).ready(function() {
   $(document).on('click', '.tvdb_img_btn', function() {
     var btn = $(this);
     var type = btn.data('type');
-    var title = $('.details form #id_title').val();
-    var id = $('.details form #id_imdbnumber').val();
+    var title = $('.main form #id_title').val();
+    var id = $('.main form #id_imdbnumber').val();
 
     btn.button('loading');
     $.get(WEBROOT + '/xhr/tvdb_show/' + title + '/' + id + '?images=' + type, function(data) {
@@ -186,7 +184,7 @@ $(document).ready(function() {
   // Scraped info save
   $(document).on('click', '.scrape_info_save_btn', function() {
     $('.scrape_info_form .controls').children().each(function() {
-      if (!$(this).val() == '') {
+      if ($(this).val() !== '') {
         $('form #id_'+$(this).attr('id')).val($(this).val());
       }
     });
@@ -206,7 +204,7 @@ $(document).ready(function() {
     }
 
     $('.scrape_info_form .controls').children().each(function() {
-      if (!$(this).val() == '') {
+      if ($(this).val() !== '') {
         $('.episode_details form #id_'+$(this).attr('id')).val($(this).val());
       }
     });
@@ -244,7 +242,7 @@ $(document).ready(function() {
   $(document).on('click', '.file_save_btn', function(){
     var path = $('.file_list').children('.active').data('path');
     var img, form_img;
-
+    var os = 'unix';
     if (file_type == 'episode_thumb') {
       file_type = 'thumb';
       img = $('.episode_details #thumb_img');
@@ -256,11 +254,10 @@ $(document).ready(function() {
     }
 
     if (path.charAt(0) == '/') {
-      var os = 'unix';
       path = path.substring(1);
     }
     else {
-      var os = 'win';
+      os = 'win';
     }
 
     $('#modal_template').modal('hide');
@@ -270,7 +267,6 @@ $(document).ready(function() {
   });
 
   // Filter
-
   $(document).on('change keydown keyup input', '.media_list .filter', function(e){
     var filter = $(this).val().toLowerCase();
     $('.media_list .item').filter(function(index) {
@@ -291,9 +287,8 @@ $(document).ready(function() {
       if (!data.error) {
         $('.media_list .item').removeClass('active');
         $(li).addClass('active');
-        $('.details').replaceWith(data);
-      }
-      else {
+        $('.main').replaceWith(data);
+      } else {
         alert_popup('error', data.error);
       }
     });
@@ -306,8 +301,7 @@ $(document).ready(function() {
     $.get(WEBROOT + '/xhr/xbmcmm/tvshow/' + $(this).data('tvshowid') + '/season/' + $(this).data('season'), function(data) {
       if (!data.error) {
         $('.season_details').replaceWith(data);
-      }
-      else {
+      } else {
         alert_popup('error', data.error);
       }
     });
@@ -319,7 +313,7 @@ $(document).ready(function() {
     $('.episode_details').text('');
     $.get(WEBROOT + '/xhr/xbmcmm/tvshow/' + $(this).data('id'), function(data) {
       if (!data.error) {
-        $('.details').replaceWith(data);
+        $('.main').replaceWith(data);
       }
       else {
         alert_popup('error', data.error);
@@ -360,7 +354,7 @@ $(document).ready(function() {
     $('.album_details').text('');
     $.get(WEBROOT + '/xhr/xbmcmm/artist/' + $(this).data('id'), function(data) {
       if (!data.error) {
-        $('.details').replaceWith(data);
+        $('.main').replaceWith(data);
       }
       else {
         alert_popup('error', data.error);
@@ -370,15 +364,15 @@ $(document).ready(function() {
 
   // Audio DB Info
   $(document).on('click', '.tadb_info_btn', function() {
-    var mbid = $('.details #media_id').data('mbid');
-    var type = $('.details #media_id').attr('media-type');
-    var query = $('.details #id_artist').val();
-
+    var mbid = $('.main #media_id').data('mbid');
+    var type = $('.main #media_id').attr('media-type');
+    var query = $('.main #id_artist').val();
+    var xhr_url;
     if (!mbid) {
-      var xhr_url = WEBROOT + '/xhr/tadb/' + type + '/query/' + query;
+      xhr_url = WEBROOT + '/xhr/tadb/' + type + '/query/' + query;
     }
     else {
-      var xhr_url = WEBROOT + '/xhr/tadb/' + type + '/id/' + mbid;
+      xhr_url = WEBROOT + '/xhr/tadb/' + type + '/id/' + mbid;
     }
 
     $.get(xhr_url, function(data) {
@@ -390,7 +384,7 @@ $(document).ready(function() {
   // Genres
   $(document).on('click', '.genre_save', function() {
     var genres = [];
-    var genre_input =  $('.details #id_genre');
+    var genre_input =  $('.main #id_genre');
 
     $('.avail_genres :checked').each(function() {
       genres.push($(this).val());
@@ -402,7 +396,7 @@ $(document).ready(function() {
   });
 
   $(document).on('click', '.add_genre_btn', function() {
-    var exising = $('.details #id_genre').val();
+    var exising = $('.main #id_genre').val();
     var file = $(this).data('file_type');
     var media =  $(this).data('media_type');
 
@@ -420,7 +414,7 @@ $(document).ready(function() {
   // Tags
   $(document).on('click', '.tag_save', function() {
     var tags = [];
-    var tag_input =  $('.details #id_tag');
+    var tag_input =  $('.main #id_tag');
 
     $('.avail_tags :checked').each(function() {
       tags.push($(this).val());
@@ -432,7 +426,7 @@ $(document).ready(function() {
   });
 
   $(document).on('click', '.add_tag_btn', function() {
-    var exising = $('.details #id_tag').val();
+    var exising = $('.main #id_tag').val();
     var media =  $(this).data('media_type');
 
     $.post(WEBROOT + '/xhr/xbmcmm_tags/' + media + '/', {exist: exising}, function(data) {
@@ -464,15 +458,16 @@ $(document).ready(function() {
   $(document).on('click', '.export_save', function() {
     var library = $(this).data('library');
     var method = $(this).data('method');
+    var form;
     if (method == 'separate') {
-      var form = $('.export_form').serialize();
+      form = $('.export_form').serialize();
     }
     else {
       var path = $('.export_file_list .current_path').text();
       if (path == 'Root') {
         return alert_popup('error', 'You must select a directory.');
       }
-      var form = {path: encodeURI(path)}
+      form = { path: encodeURI(path) };
     }
 
     $.post(WEBROOT + '/xhr/export/' + library + '/' + method + '/', form, function(data) {
@@ -514,8 +509,8 @@ $(document).ready(function() {
 
   // Remove library item
   $(document).on('click', '.remove_item', function() {
-    var id = $('.details #media_id').data('id');
-    var media = $('.details #media_id').attr('media-type');
+    var id = $('.main #media_id').data('id');
+    var media = $('.main #media_id').attr('media-type');
 
     $.get(WEBROOT + '/xhr/xbmcmm/remove/' + media + '/' + id, function(data) {
       $('#modal_template').replaceWith(data);
@@ -540,8 +535,8 @@ $(document).ready(function() {
   // Remove from movie set
   $(document).on('click', '.remove_from_set', function() {
     var movieid = $(this).attr('id');
-    var setid = $('.details .setid').attr('id');
-    var setlength = $('.details .setid').data('length');
+    var setid = $('.main .setid').attr('id');
+    var setlength = $('.main .setid').data('length');
 
     $.get(WEBROOT + '/xhr/xbmcmm/modify_set/remove/' + movieid, function(data) {
       if (data.success) {
@@ -561,8 +556,8 @@ $(document).ready(function() {
   // Add movie to set
   $(document).on('click', '.add_to_set', function() {
     var movieid = $(this).attr('id');
-    var setid = $('.details .setid').attr('id');
-    var setlabel = $('.details .setid').data('label');
+    var setid = $('.main .setid').attr('id');
+    var setlabel = $('.main .setid').data('label');
 
     if (setid === '0' && $('#setlabel').val()) {
       setlabel = $('#setlabel').val();
@@ -592,7 +587,7 @@ $(document).ready(function() {
       $('#modal_template').replaceWith(data);
 
       if (action === 'rename') {
-        $('#modal_template .setlabel').val($('.details .setid').data('label'));
+        $('#modal_template .setlabel').val($('.main .setid').data('label'));
       }
 
       $('#modal_template').modal('show');
@@ -601,12 +596,12 @@ $(document).ready(function() {
 
   // Modify movie set final
   $(document).on('click', '#modal_template .confirm_modify_set', function() {
-    var setid = $('.details .setid').attr('id');
+    var setid = $('.main .setid').attr('id');
     var action = $(this).data('action');
     var params = {'movies': []};
     console.log('pressed');
 
-    $('.details .set_list ul li.item').each(function () {
+    $('.main .set_list ul li.item').each(function () {
       params['movies'].push($(this).attr('id'));
     });
 
@@ -642,14 +637,14 @@ $(document).ready(function() {
   // Validate numeric inputs
   $(document).on('change keydown keyup', 'form input', function(e){
     var input = $(this);
-    var numbers = ['year', 'rating', 'season', 'episode', 'runtime']
+    var numbers = ['year', 'rating', 'season', 'episode', 'runtime'];
 
     $.each(numbers, function() {
       if (input.attr('name') == this) {
-        if ($.isNumeric(input.val()) == false) {
+        if ($.isNumeric(input.val()) === false) {
           input.closest('.control-group').addClass('error');
         }
-        else if (input.length == 0) {
+        else if (input.length === 0) {
           input.closest('.control-group').addClass('error');
         }
         else if (input.closest('.control-group').hasClass('error')) {
@@ -664,8 +659,8 @@ $(document).ready(function() {
     var form = $(this).parents('form');
     var title = form.find('#id_title').val();
     var details = form.serialize();
-    var id = $('.details #media_id').data('id');
-    var type = $('.details #media_id').attr('media-type');
+    var id = $('.main #media_id').data('id');
+    var type = $('.main #media_id').attr('media-type');
 
     $.post('/xhr/xbmcmm/' + type + '/set/' + id + '/', details, function(data) {
       if (!data.error) {
@@ -686,5 +681,4 @@ $(document).ready(function() {
       }
     });
   });
-
 });

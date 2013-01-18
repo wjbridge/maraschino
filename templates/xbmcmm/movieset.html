@@ -1,4 +1,4 @@
-<div class="details span10">
+<div class="details">
   {% if movieset %}
     <div
       class="setid"
@@ -48,7 +48,7 @@
           {% if movie.set != movieset.label %}
             <li class="add_to_set" title="Add to set" id="{{ movie.movieid }}">
               <a href="#">
-                <i class="icon-plus pull-left"></i> 
+                <i class="icon-plus pull-left"></i>
                 {{ movie.label }}
                 {% if movie.set %}
                   <span class="badge badge-important pull-right setbadge" title="{{ movie.set }}">In Set</span>

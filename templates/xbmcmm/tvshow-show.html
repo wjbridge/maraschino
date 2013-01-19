@@ -25,7 +25,7 @@
       <img src="{{ webroot_url('/static/images/xhrloading2.gif') }}" />
       <script>
         var curImg = new Image();
-          curImg.src = "{{ show['art'][type]|xbmc_image }}";
+        curImg.src = "{{ show['art'][type]|xbmc_image }}";
         curImg.id = "{{ type }}_img";
         curImg.onload = function(){
           $('.{{ type }}_thumb img').replaceWith(this);
@@ -44,21 +44,21 @@
           <button class="btn span3 fanarttv_btn" data-type="{{ type }}" data-media="series" data-id="{{ show.imdbnumber }}">fanart.tv</button>
         {% endif %}
 
-        {% if tmdb %}
-         <button class="btn span3 tmdb_img_btn" data-type="{{ type }}" data-id="{{ show.imdbnumber }}">TMDB</button>
+        {% if tvdb %}
+          <button class="btn tvdb_img_btn span3" data-type="{{ type }}" data-id="{{ show.imdbnumber }}">TVDB</button>
         {% endif %}
       </div>
     <div class="clearfix"></div>
     </div>
   </div>
 {% endmacro %}
+
 {% if item.tvshowdetails %}
   {% set show = item.tvshowdetails %}
-  <div class="container-fluid">
+  <div class="container-fluid" id="media_id" data-type="tvshow" data-id="{{ item.tvshowdetails.tvshowid }}">
     <div class="row-fluid">
       <div class="span4">
-        <div id="media_id" media-type="tvshow" data-id="{{ item.tvshowdetails.tvshowid }}"></div>
-        <div class="form-horizontal">
+        <div class="form-horizontal" id="form">
           {{ control_group('title', 'Title') }}
           {{ control_group('originaltitle', 'Original Title') }}
           {{ control_group('sorttitle', 'Sort Title') }}
@@ -70,16 +70,16 @@
           {{ control_group('mpaa', 'Certification') }}
           {{ control_group('studio', 'Studio', 'Separate with " / "') }}
           {{ control_group('tag', 'Tags', 'Separate with " / "') }}
+          {{ hidden_input('imdbnumber', False) }}
+          {{ hidden_input('fanart') }}
+          {{ hidden_input('banner') }}
+          {{ hidden_input('discart') }}
+          {{ hidden_input('poster') }}
+          {{ hidden_input('clearart') }}
+          {{ hidden_input('clearlogo') }}
+          {{ hidden_input('characterart') }}
+          {{ hidden_input('landscape') }}
         </div>
-        {{ hidden_input('imdbnumber', False) }}
-        {{ hidden_input('fanart') }}
-        {{ hidden_input('banner') }}
-        {{ hidden_input('discart') }}
-        {{ hidden_input('poster') }}
-        {{ hidden_input('clearart') }}
-        {{ hidden_input('clearlogo') }}
-        {{ hidden_input('characterart') }}
-        {{ hidden_input('landscape') }}
       </div>
 
       <div class="span4">

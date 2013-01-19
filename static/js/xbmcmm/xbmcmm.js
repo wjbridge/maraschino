@@ -27,13 +27,14 @@ $(document).ready(function() {
 
   // Replace image
   function replace_img(type, new_src) {
-    $('.'+type+'_thumb img').replaceWith(
-      $('<img />', {'src': WEBROOT+'/static/images/xhrloading2.gif', 'id': type+'_img'})
+    $('.'+type+'_thumb .image').replaceWith(
+      $('<img />', {'src': WEBROOT+'/static/images/xhrloading2.gif', 'id': type+'_img', 'class': 'image'})
     );
 
     var newImg = new Image();
     newImg.src = new_src;
     newImg.id = type+"_img";
+    newImg.class = "image";
     newImg.onload = function(){
       $('.'+type+'_thumb img').replaceWith(this);
     };
@@ -661,11 +662,10 @@ $(document).ready(function() {
 
   // Apply changes
   $(document).on('click', '.xbmc_save', function() {
-    var form = $(this).parents('form');
-    var title = form.find('#id_title').val();
-    var details = form.serialize();
-    var id = $('.main #media_id').data('id');
-    var type = $('.main #media_id').attr('media-type');
+    var title = $('#id_title').val();
+    var details = $('#form :input').serialize();
+    var id = $('#media_id').data('id');
+    var type = $('#media_id').data('type');
 
     $.post('/xhr/xbmcmm/' + type + '/set/' + id + '/', details, function(data) {
       if (!data.error) {

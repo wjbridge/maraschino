@@ -22,11 +22,12 @@
   <div class="thumbnail thumb_main {{ type }}_thumb">
     <h3>{{ type|title }}</h3>
     {% if type in show.art %}
-      <img src="{{ webroot_url('/static/images/xhrloading2.gif') }}" />
+      <img src="{{ webroot_url('/static/images/xhrloading2.gif') }}" class="image" />
       <script>
         var curImg = new Image();
         curImg.src = "{{ show['art'][type]|xbmc_image }}";
         curImg.id = "{{ type }}_img";
+        curImg.class = "image";
         curImg.onload = function(){
           $('.{{ type }}_thumb img').replaceWith(this);
         }

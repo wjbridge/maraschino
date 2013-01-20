@@ -34,9 +34,9 @@ $(document).ready(function() {
     var newImg = new Image();
     newImg.src = new_src;
     newImg.id = type+"_img";
-    newImg.class = "image";
     newImg.onload = function(){
-      $('.'+type+'_thumb img').replaceWith(this);
+      $('.'+type+'_thumb .image').replaceWith(this);
+      $("#"+type+"_img").addClass('image');
     };
   }
 
@@ -662,6 +662,7 @@ $(document).ready(function() {
 
   // Apply changes
   $(document).on('click', '.xbmc_save', function() {
+    $(this).text('Loading...');
     var title = $('#id_title').val();
     var details = $('#form :input').serialize();
     var id = $('#media_id').data('id');

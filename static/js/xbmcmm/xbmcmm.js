@@ -77,30 +77,36 @@ $(document).ready(function() {
   /*  TV Show Stuff   */
   /********************/
 
-  // Season tab
-  $(document).on('click', '.season_tab', function() {
-    $('.season_details').fadeIn().html("<center class='loading'> Loading... </center>");
-    $('.episode_details').text('');
-    $('.main .btn-group').hide();
-    $.get(WEBROOT + '/xhr/xbmcmm/tvshow/' + $(this).data('tvshowid') + '/season/' + $(this).data('season'), function(data) {
+  // TVShow tab
+  $(document).on('click', '.tvshow_tab', function() {
+    $('.main .btn-group').fadeIn();
+    $('#media_id').hide(function(){
+      $(this).html("<center class='loading'> Loading... </center>").fadeIn();
+    });
+    $.get(WEBROOT + '/xhr/xbmcmm/tvshow/' + $(this).data('id'), function(data) {
       if (!data.error) {
-        $('.season_details').replaceWith(data);
+        $('#media_id').fadeOut(function(){
+          $('.main').replaceWith(data);
+        });
       } else {
         alert_popup('error', data.error);
       }
     });
   });
 
-  // TVShow tab
-  $(document).on('click', '.tvshow_tab', function() {
-    $('.season_details').text('');
-    $('.episode_details').text('');
-    $('.main .btn-group').show();
-    $.get(WEBROOT + '/xhr/xbmcmm/tvshow/' + $(this).data('id'), function(data) {
+  // Season tab
+  $(document).on('click', '.season_tab', function() {
+    $('#media_id').html('');
+    $('.main .btn-group').fadeOut();
+    $('.season_details').hide(function(){
+      $(this).html("<center class='loading'> Loading... </center>").fadeIn();
+    });
+    $.get(WEBROOT + '/xhr/xbmcmm/tvshow/' + $(this).data('tvshowid') + '/season/' + $(this).data('season'), function(data) {
       if (!data.error) {
-        $('.main').replaceWith(data);
-      }
-      else {
+        $('.active .season_details').fadeOut(function(){
+          $(this).replaceWith(data);
+        });
+      } else {
         alert_popup('error', data.error);
       }
     });
@@ -129,7 +135,6 @@ $(document).ready(function() {
     var btn = $(this);
     var title = $('.main #id_title').val();
     var id = $('.main #id_imdbnumber').val();
-
     btn.button('loading');
     $.get(WEBROOT + '/xhr/tvdb_show/' + title + '/' + id, function(data) {
       $('#modal_template').replaceWith(data);
@@ -143,7 +148,6 @@ $(document).ready(function() {
     var type = btn.data('type');
     var title = $('.main #id_title').val();
     var id = $('.main #id_imdbnumber').val();
-
     btn.button('loading');
     $.get(WEBROOT + '/xhr/tvdb_show/' + title + '/' + id + '?images=' + type, function(data) {
       $('#modal_template').replaceWith(data);
@@ -167,7 +171,6 @@ $(document).ready(function() {
     var tvshowid = $('.episode_details #media_id').data('tvshowid');
     var episode = $('.episode_details #id_episode').val();
     var season = $('.episode_details #id_season').val();
-
     btn.button('loading');
     $.get(WEBROOT + '/xhr/tvdb_episode/' + tvshowid + '/' + season + '/' + episode, function(data) {
       $('#modal_template').replaceWith(data);
@@ -180,7 +183,6 @@ $(document).ready(function() {
   $(document).on('click', '.scrape_info_episode_save_btn', function() {
     var img_checkbox = $('.scrape_info_form .controls #thumbnail');
     var img = $('.episode_details #thumbnail_img');
-
     if (!img_checkbox.is(':checked')) {
       img_checkbox.val('');
     }
@@ -193,7 +195,6 @@ $(document).ready(function() {
         $('.episode_details #id_'+$(this).attr('id')).val($(this).val());
       }
     });
-
 
     $('#modal_template').modal('hide');
   });
@@ -231,7 +232,7 @@ $(document).ready(function() {
   // Audio DB Info
   $(document).on('click', '.tadb_info_btn', function() {
     var mbid = $('.main #media_id').data('mbid');
-    var type = $('.main #media_id').attr('media-type');
+    var type = $('.main #media_id').data('type');
     var query = $('.main #id_artist').val();
     var xhr_url;
     if (!mbid) {
@@ -486,7 +487,7 @@ $(document).ready(function() {
   // Remove library item
   $(document).on('click', '.remove_item', function() {
     var id = $('.main #media_id').data('id');
-    var media = $('.main #media_id').attr('media-type');
+    var media = $('.main #media_id').data('type');
 
     $.get(WEBROOT + '/xhr/xbmcmm/remove/' + media + '/' + id, function(data) {
       $('#modal_template').replaceWith(data);
@@ -696,13 +697,13 @@ $(document).ready(function() {
   // Apply changes
   $(document).on('click', '.xbmc_save', function() {
     var btn = $(this);
-    btn.text('Loading...');
     var title = $('#id_title').val();
-    var details = $('#form :input').serialize();
     var id = $('#media_id').data('id');
     var type = $('#media_id').data('type');
+    var details = $('#form :input').serialize();
+    btn.text('Loading...');
+    console.log(details);
     $.post(WEBROOT + '/xhr/xbmcmm/' + type + '/set/' + id + '/', details, function(data) {
-      console.log(data);
       if (!data.error) {
         alert_popup('success', data.status);
         if (type == 'episode') {

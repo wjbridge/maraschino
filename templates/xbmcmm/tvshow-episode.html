@@ -27,13 +27,14 @@
   <div class="row-fluid">
     <div class="span6 thumbnail thumb_main thumb_thumb">
       {% if 'thumb' in episode.art %}
-        <img src="{{ webroot_url('/static/images/xhrloading2.gif') }}" />
+        <img src="{{ webroot_url('/static/images/xhrloading2.gif') }}" class="image" />
         <script>
           var curImg = new Image();
           curImg.src = "{{ episode['art']['thumb']|xbmc_image }}";
           curImg.id = "thumb_img";
           curImg.onload = function(){
-            $('.thumb_thumb img').replaceWith(this);
+            $(this).addClass('image');
+            $('.thumb_thumb .image').replaceWith(this);
           }
         </script>
       {% else %}
@@ -46,8 +47,8 @@
       </div>
     </div>
     <div class="span6">
-      <div class="form-horizontal">
-        <div id="media_id" data-type="episode" data-id="{{ episode.episodeid }}" data-tvshowid="{{ episode.tvshowid }}"></div>
+      <div id="media_id" data-type="episode" data-id="{{ episode.episodeid }}" data-tvshowid="{{ episode.tvshowid }}">
+        <form class="form-horizontal" id="form">
         {{ control_group('title', 'Title') }}
         {{ control_group('plot', 'Plot') }}
         {{ control_group('firstaired', 'First Aired') }}
@@ -60,9 +61,9 @@
         {{ hidden_input('episode', False) }}
         {{ hidden_input('season', False) }}
         {{ hidden_input('thumb') }}
+        </form>
       </div>
     </div>
-
   </div>
   {% endif %}
 </div>

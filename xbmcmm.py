@@ -1,4 +1,4 @@
-from flask import render_template, request, json, jsonify, send_file
+from flask import render_template, request, json, jsonify
 from maraschino import app, logger
 from maraschino.tools import requires_auth, get_setting_value, create_dir, download_image
 from maraschino.noneditable import server_api_address
@@ -6,17 +6,15 @@ from maraschino.models import XbmcServer
 from jinja2.filters import FILTERS
 from tvdb_api import tvdb_api, tvdb_exceptions
 from threading import Thread
-import musicbrainzngs
 import os
 import urllib
 import urllib2
 import string
 import maraschino
 import jsonrpclib
-import StringIO
 import time
-
 xbmc_error = 'There was a problem connecting to the XBMC server'
+
 
 def xbmcmm_except(e):
     logger.log('XBMCMM :: EXCEPTION -- %s' % e, 'DEBUG')
@@ -100,6 +98,7 @@ def xhr_xbmcmm_movie_details(id):
     return render_template('/xbmcmm/movie.html',
         item=item
     )
+
 
 @app.route('/xhr/xbmcmm/movieset/<int:id>/')
 @requires_auth
@@ -195,7 +194,7 @@ def xhr_xbmcmm_artist_details(id):
     try:
         item = xbmc.AudioLibrary.GetArtistDetails(artistid=id, properties=artist_properties)
         try:
-            item['albums'] = xbmc.AudioLibrary.GetAlbums(filter={'artistid':id}, sort={'method': 'year'})['albums']
+            item['albums'] = xbmc.AudioLibrary.GetAlbums(filter={'artistid': id}, sort={'method': 'year'})['albums']
         except:
             item['albums'] = {}
     except Exception as e:
@@ -207,6 +206,7 @@ def xhr_xbmcmm_artist_details(id):
     return render_template('/xbmcmm/music-base.html',
         item=item
     )
+
 
 @app.route('/xhr/xbmcmm/album/<int:id>/')
 @requires_auth
@@ -321,13 +321,11 @@ def xhr_xbmcmm_modify_set(action, movieid=None):
 
             xbmc.VideoLibrary.SetMovieDetails(**params)
 
-
         else:
             for movieid in request.form.getlist('movies[]'):
                 params = {'movieid': int(movieid)}
 
                 if action == 'rename':
-                    setlabel = request.form['setlabel']
                     params['set'] = request.form['setlabel']
                 else:
                     params['set'] = ''
@@ -372,7 +370,7 @@ def xhr_xbmcmm_export_filesystem():
         path = urllib.unquote(path.encode('ascii')).decode('utf-8')
         filesystem = browse_filesystem(path=path)
     except:
-        filesystem=browse_filesystem()
+        filesystem = browse_filesystem()
 
     return render_template('xbmcmm/modals/export-filesystem.html',
         filesystem=filesystem
@@ -614,6 +612,7 @@ def xhr_xbmcmm_url(type):
 ### fanart.tv ###
 fanarttv_apikey = '560fee4c7ffe8f503e0f9474b8adb3e6'
 
+
 def fanarttv_url(media, type, id, sort=1, limit=2):
     return 'http://fanart.tv/webservice/%s/%s/%s/json/%s/%s/%s/' % (media, fanarttv_apikey, id, type, sort, limit)
 
@@ -671,10 +670,10 @@ def xhr_xbmcmm_fanarttv(media, type, id):
             url = item['url']
 
             cache_params = {
-                'image': url+'/preview',
-                'media_type': media+'s',
+                'image': url + '/preview',
+                'media_type': media + 's',
                 'img_type': type,
-                media+'_name': id,
+                media + '_name': id,
                 'fanarttv': True
             }
 
@@ -696,6 +695,7 @@ def xhr_xbmcmm_fanarttv(media, type, id):
 
 ### TMDB ###
 tmdb_apikey = '54fe2d0eef90c6257f746dddb7df8826'
+
 
 def tmdb_api(id, param='', dev=False):
     url = 'http://api.themoviedb.org/3/movie/' + id
@@ -762,10 +762,10 @@ def xhr_xbmcmm_tmdb_info(id):
         if trailers['youtube']:
             movie['trailer'] = trailers['youtube'][0]['source']
 
-
     return render_template('xbmcmm/modals/tmdb_info.html',
         movie=movie
     )
+
 
 @app.route('/xhr/tmdb/images/<type>/<id>/')
 @requires_auth
@@ -773,7 +773,7 @@ def xhr_xbmcmm_tmdb_images(type, id):
     logger.log('XBMCMM :: Fething %s images for movie: %s from TMDB' % (type, id), 'INFO')
 
     images = {'fanart': {}, 'poster': {}}
-    base='http://cf2.imgobject.com/t/p/'
+    base = 'http://cf2.imgobject.com/t/p/'
 
     try:
         tmdb = tmdb_api(id, '/images')
@@ -786,7 +786,7 @@ def xhr_xbmcmm_tmdb_images(type, id):
             for fanart in tmdb['backdrops']:
                 url = base + 'original' + fanart['file_path']
                 thumb_url = base + 'w185' + fanart['file_path']
-                images['fanart']['image'+str(len(images['fanart']))] = {
+                images['fanart']['image' + str(len(images['fanart']))] = {
                     'url': url,
                     'local': xbmcmm_image_cache(thumb_url, 'movies', 'fanart', movie_name=id)
                 }
@@ -795,7 +795,7 @@ def xhr_xbmcmm_tmdb_images(type, id):
             for poster in tmdb['posters']:
                 url = base + 'original' + poster['file_path']
                 thumb_url = base + 'w185' + poster['file_path']
-                images['poster']['image'+str(len(images['poster']))] = {
+                images['poster']['image' + str(len(images['poster']))] = {
                     'url': url,
                     'local': xbmcmm_image_cache(thumb_url, 'movies', 'posters', movie_name=id)
                 }
@@ -812,42 +812,46 @@ def xhr_xbmcmm_tmdb_images(type, id):
 ### TVDB ###
 tvdb_apikey = 'F437CB7A56AE5209'
 
+
 class maraUI(tvdb_api.BaseUI):
+    global tvdb_show_list
+
     def selectSeries(self, shows):
         '''This is not a perfect solution, but it works..'''
         global tvdb_show_list
         tvdb_show_list = shows
         return shows[0]
 
+    def tvdb_show_search(show_name):
+        t = tvdb_api.Tvdb(apikey=tvdb_apikey, custom_ui=maraUI)
+        global tvdb_show_list
+        try:
+            t[show_name]
+            shows = tvdb_show_list
+        except tvdb_exceptions.tvdb_shownotfound:
+            logger.log('Unable to find' + show_name + 'on TVDB', 'ERROR')
+            return []
+        except tvdb_exceptions.tvdb_error:
+            logger.log('TVDB :: Cannot connect to TVDB', 'ERROR')
+            return []
 
-def tvdb_show_search(show_name):
-    t = tvdb_api.Tvdb(apikey=tvdb_apikey, custom_ui=maraUI)
-    try:
-        t[show_name]
-        shows = tvdb_show_list
-    except tvdb_exceptions.tvdb_shownotfound:
-        logger.log('Unable to find' + show_name + 'on TVDB', 'ERROR')
-        return []
-    except tvdb_exceptions.tvdb_error:
-        logger.log('TVDB :: Cannot connect to TVDB', 'ERROR')
-        return []
+        return shows
 
-    return shows
+    def tvdb_str2list(show=None, episode=None):
+        def split_var(var):
+            return ' / '.join([x for x in var.split('|') if x])
 
-def tvdb_str2list(show=None, episode=None):
-    def split_var(var):
-        return ' / '.join([x for x in var.split('|') if x])
+        if show:
+            if show['genre']:
+                show['genre'] = split_var(show['genre'])
+            return lst2str(show)
+        else:
+            if episode['writer']:
+                episode['writer'] = split_var(episode['writer'])
+            if episode['director']:
+                episode['director'] = split_var(episode['director'])
+            return lst2str(episode)
 
-    if show:
-        if show['genre']:
-            show['genre'] = split_var(show['genre'])
-        return lst2str(show)
-    else:
-        if episode['writer']:
-            episode['writer'] = split_var(episode['writer'])
-        if episode['director']:
-            episode['director'] = split_var(episode['director'])
-        return lst2str(episode)
 
 @app.route('/xhr/tvdb_show/<show_name>/')
 @app.route('/xhr/tvdb_show/<show_name>/<id>/')
@@ -899,7 +903,6 @@ def xhr_tvdb(show_name, id=None):
                 render_params['show'] = tvdb_str2list(show=show)
                 return render_tvdb(**render_params)
 
-
     logger.log('TVDB :: No ID supplied, or ID does not match title. Searching using title', 'WARNING')
     shows = tvdb_show_search(show_name)
     if not shows:
@@ -945,26 +948,27 @@ def xhr_tvdb_episode(tvshowid, season, episode_number):
         episode=tvdb_str2list(episode=episode)
     )
 
+
 def tvdb_show_image_cache(show, img_type):
     '''
-    Navigates show returned from tvdb and pulls out 
+    Navigates show returned from tvdb and pulls out
     all the image urls to be sent to cache.
     '''
     show_name = show['id']
 
-    if img_type == 'poster' and show['_banners']['poster']: # Posters
+    if img_type == 'poster' and show['_banners']['poster']:  # Posters
         for size in show['_banners']['poster']:
             for image in show['_banners']['poster'][str(size)]:
                 url = show['_banners']['poster'][str(size)][str(image)]['_bannerpath']
                 show['_banners']['poster'][str(size)][str(image)]['localpath'] = xbmcmm_image_cache(url, 'shows', 'posters', show_name=show_name)
 
-    elif img_type == 'banner' and show['_banners']['series']: # Banners
+    elif img_type == 'banner' and show['_banners']['series']:  # Banners
         for ban_type in show['_banners']['series']:
             for image in show['_banners']['series'][ban_type]:
                 url = show['_banners']['series'][ban_type][str(image)]['_bannerpath']
                 show['_banners']['series'][ban_type][str(image)]['localpath'] = xbmcmm_image_cache(url, 'shows', 'banners', show_name=show_name)
 
-    else: # Fanart
+    else:  # Fanart
         if show['_banners']['fanart']:
             for size in show['_banners']['fanart']:
                 for image in show['_banners']['fanart'][str(size)]:
@@ -1009,6 +1013,7 @@ def render_tvdb(
         bannerart=get_setting_value('library_use_bannerart') == '1'
     )
 
+
 ### Image cache ###
 def xbmcmm_image_cache(
     image,
@@ -1026,9 +1031,9 @@ def xbmcmm_image_cache(
     if show_name:
         base_dir = os.path.join(base_dir, show_name)
         if season:
-            base_dir = os.path.join(base_dir, 'season '+str(season))
+            base_dir = os.path.join(base_dir, 'season ' + str(season))
             if episode:
-                base_dir = os.path.join(base_dir, 'episode '+str(episode))
+                base_dir = os.path.join(base_dir, 'episode ' + str(episode))
     elif movie_name:
         base_dir = os.path.join(base_dir, movie_name)
 
@@ -1038,10 +1043,10 @@ def xbmcmm_image_cache(
     if fanarttv:
         fanarttv_img = image[:-8]
         x = fanarttv_img.rfind('/')
-        filename = fanarttv_img[x+1:]
+        filename = fanarttv_img[x + 1:]
     else:
         x = image.rfind('/')
-        filename = image[x+1:]
+        filename = image[x + 1:]
 
     file_path = os.path.join(base_dir, filename)
 
@@ -1059,10 +1064,11 @@ def xbmcmm_image_cache(
 ### File system ###
 img_ext = ['.jpg', '.jpeg', '.tbn']
 
+
 def get_win_drives():
     from ctypes import windll
     drives = []
-    bitmask = windll.kernel32.GetLogicalDrives() #@UndefinedVariable
+    bitmask = windll.kernel32.GetLogicalDrives()  # @UndefinedVariable
     for letter in string.uppercase:
         if bitmask & 1:
             drives.append(letter + ':\\')
@@ -1131,6 +1137,7 @@ def browse_filesystem(dir=get_home_dirs(), path=''):
         'dir': dir
     }
 
+
 @app.route('/xhr/filesystem/', methods=['GET', 'POST'])
 @requires_auth
 def xhr_filesystem():
@@ -1139,7 +1146,7 @@ def xhr_filesystem():
         path = urllib.unquote(path.encode('ascii')).decode('utf-8')
         filesystem = browse_filesystem(path=path)
     except:
-        filesystem=browse_filesystem()
+        filesystem = browse_filesystem()
 
     dir = filesystem['dir']
     root = filesystem['root']
@@ -1154,6 +1161,7 @@ def xhr_filesystem():
 
 ### The Audio DB ###
 tadb_apikey = '4d617261736368696e6f4d'
+
 
 def tadb_api(cmd, dev=False):
     url = 'http://www.theaudiodb.com/api/v1/json/%s/%s' % (tadb_apikey, cmd)
@@ -1209,8 +1217,10 @@ def lst2str(details):
 def str2lst(str_lst):
     return [x.strip() for x in str_lst.split('/') if x != '']
 
+
 def is_digit(var):
     return var.isdigit()
+
 
 def tostring(var):
     return str(var)

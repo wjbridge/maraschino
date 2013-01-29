@@ -1,16 +1,8 @@
 $(document).ready(function() {
 
-  // Switch XBMC Server
-  $(document).on('click', '.switch_server', function() {
-    var li = $(this);
-    $.get(WEBROOT + '/xhr/switch_server/' + $(this).data('server_id'), function(data) {
-      if (data.status === 'error') {
-        alert_popup('error', 'There was an error switching XBMC servers.');
-        return;
-      }
-      window.location.reload();
-    });
-  });
+  /********************/
+  /* HELPER FUNCTIONS */
+  /********************/
 
   // Alert
   function alert_popup(status, msg) {
@@ -28,17 +20,34 @@ $(document).ready(function() {
   // Replace image
   function replace_img(type, new_src) {
     $('.'+type+'_thumb .image').replaceWith(
-      $('<img />', {'src': WEBROOT+'/static/images/xhrloading2.gif', 'id': type+'_img', 'class': 'image'})
+      $('<img src="/static/images/xhrloading2.gif" id="'+type+'_img" class="image" />')
     );
 
     var newImg = new Image();
     newImg.src = new_src;
     newImg.id = type+"_img";
     newImg.onload = function(){
+      $(this).addClass('image');
       $('.'+type+'_thumb .image').replaceWith(this);
-      $("#"+type+"_img").addClass('image');
     };
   }
+
+
+  /********************/
+  /* DOM Mnipulation  */
+  /********************/
+
+  // Switch XBMC Server
+  $(document).on('click', '.switch_server', function() {
+    var li = $(this);
+    $.get(WEBROOT + '/xhr/switch_server/' + $(this).data('server_id'), function(data) {
+      if (data.status === 'error') {
+        alert_popup('error', 'There was an error switching XBMC servers.');
+        return;
+      }
+      window.location.reload();
+    });
+  });
 
   // Image URL
   $(document).on('click', '.url_btn', function() {
@@ -537,6 +546,10 @@ $(document).ready(function() {
       }
     });
   });
+
+  /********************/
+  /*    Movie Sets    */
+  /********************/
 
   // Remove from movie set
   $(document).on('click', '.remove_from_set', function() {

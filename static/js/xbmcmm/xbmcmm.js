@@ -32,79 +32,13 @@ $(document).ready(function() {
     };
   }
 
-
   /********************/
   /* DOM Mnipulation  */
   /********************/
 
-  // Switch XBMC Server
-  $(document).on('click', '.switch_server', function() {
-    var li = $(this);
-    $.get(WEBROOT + '/xhr/switch_server/' + $(this).data('server_id'), function(data) {
-      if (data.status === 'error') {
-        alert_popup('error', 'There was an error switching XBMC servers.');
-        return;
-      }
-      window.location.reload();
-    });
-  });
-
-  // Image URL
-  $(document).on('click', '.url_btn', function() {
-    $.get(WEBROOT + '/xhr/xbmcmm_url/' + $(this).data('type'), function(data) {
-      $('#modal_template').replaceWith(data);
-      $('#modal_template').modal('show');
-    });
-  });
-
-  $(document).on('click', '.url_save', function() {
-    var type = $(this).data('type');
-    var url = $('#modal_template #' + type + '_url').val();
-    var img, form_img;
-
-    if (type == 'episode_thumb') {
-      type = 'thumb';
-      img = $('.episode_details #thumb_img');
-      form_img = $('.episode_details #id_thumb');
-    }
-    else {
-      img = $('#'+type+'_img');
-      form_img = $('#id_'+type);
-    }
-
-    $('#modal_template').modal('hide');
-    form_img.val(url);
-    replace_img(type, url);
-  });
-
-  // image save
-  $(document).on('click', '.modal_images img', function() {
-    var url = $(this).data('url');
-    var type = $(this).data('type');
-    var img = $('.main #'+type+'_img');
-    var new_src = WEBROOT + '/cache/image_url/' + url.replace('http://', '');
-
-    $('#modal_template').modal('hide');
-    $('#id_'+type).val(url);
-    replace_img(type, new_src);
-  });
-
-  // fanart.tv
-  $(document).on('click', '.fanarttv_btn', function() {
-    var btn = $(this);
-    var id = $('.main #id_imdbnumber').val();
-    btn.button('loading');
-    $.get(WEBROOT + '/xhr/fanarttv/' + btn.data('media') + '/' + btn.data('type') + '/' + id, function(data) {
-      if (!data.error) {
-        $('#modal_template').replaceWith(data);
-        $('#modal_template').modal('show');
-      }
-      else {
-        alert_popup('error', data.error);
-      }
-      btn.button('reset');
-    });
-  });
+  /********************/
+  /*    Movie Stuff   */
+  /********************/
 
   // tmdb
   $(document).on('click', '.tmdb_info_btn', function() {
@@ -136,6 +70,55 @@ $(document).ready(function() {
         alert_popup('error', data.error);
       }
       btn.button('reset');
+    });
+  });
+
+  /********************/
+  /*  TV Show Stuff   */
+  /********************/
+
+  // Season tab
+  $(document).on('click', '.season_tab', function() {
+    $('.season_details').fadeIn().html("<center class='loading'> Loading... </center>");
+    $('.episode_details').text('');
+    $.get(WEBROOT + '/xhr/xbmcmm/tvshow/' + $(this).data('tvshowid') + '/season/' + $(this).data('season'), function(data) {
+      if (!data.error) {
+        $('.season_details').replaceWith(data);
+      } else {
+        alert_popup('error', data.error);
+      }
+    });
+  });
+
+  // TVShow tab
+  $(document).on('click', '.tvshow_tab', function() {
+    $('.season_details').text('');
+    $('.episode_details').text('');
+    $.get(WEBROOT + '/xhr/xbmcmm/tvshow/' + $(this).data('id'), function(data) {
+      if (!data.error) {
+        $('.main').replaceWith(data);
+      }
+      else {
+        alert_popup('error', data.error);
+      }
+    });
+  });
+
+  // Episode list
+  $(document).on('click', '.episode_list li', function() {
+    var li = $(this);
+    $('.episode_details').fadeOut(function(){
+      $(this).fadeIn().html("<center class='loading'> Loading... </center>");
+    });
+    $('.episode_list li').removeClass('active');
+    li.addClass('active');
+    $.get(WEBROOT + '/xhr/xbmcmm/episode/' + $(this).attr('id'), function(data) {
+      if (!data.error) {
+        $('.episode_details').replaceWith(data);
+      }
+      else {
+        alert_popup('error', data.error);
+      }
     });
   });
 
@@ -191,16 +174,6 @@ $(document).ready(function() {
     });
   });
 
-  // Scraped info save
-  $(document).on('click', '.scrape_info_save_btn', function() {
-    $('.scrape_info_form .controls').children().each(function() {
-      if ($(this).val() !== '') {
-        $('#id_'+$(this).attr('id')).val($(this).val());
-      }
-    });
-    $('#modal_template').modal('hide');
-  });
-
   // Scraped episode info save
   $(document).on('click', '.scrape_info_episode_save_btn', function() {
     var img_checkbox = $('.scrape_info_form .controls #thumbnail');
@@ -223,133 +196,9 @@ $(document).ready(function() {
     $('#modal_template').modal('hide');
   });
 
-  // Filesystem
-  var file_type = '';
-
-  $(document).on('click', '.file_btn', function() {
-    file_type = $(this).data('type');
-    $.get(WEBROOT + '/xhr/filesystem/', function(data) {
-      $('#modal_template').replaceWith(data);
-      $('#modal_template').modal('show');
-    });
-  });
-
-  $(document).on('click', '.file_list .path', function(){
-    var path = $(this).data('path');
-    $.post(WEBROOT + '/xhr/filesystem/',{path: encodeURI(path)}, function(data){
-      $('#modal_template').modal('hide');
-      $('#modal_template').replaceWith(data);
-      $('#modal_template').modal('show');
-    });
-  });
-
-  $(document).on('click', '.file_list .file', function(){
-    $('#modal_template .file').removeClass('active');
-    $(this).addClass('active');
-    $('.file_save_btn').removeClass('hide');
-  });
-
-  $(document).on('click', '.file_save_btn', function(){
-    var path = $('.file_list').children('.active').data('path');
-    var img, form_img;
-    var os = 'unix';
-    if (file_type == 'episode_thumb') {
-      file_type = 'thumb';
-      img = $('.episode_details #thumb_img');
-      form_img = $('.episode_details #id_thumb');
-    }
-    else {
-      img = $('#'+file_type+'_img');
-      form_img = $('#id_'+file_type);
-    }
-
-    if (path.charAt(0) == '/') {
-      path = path.substring(1);
-    }
-    else {
-      os = 'win';
-    }
-
-    $('#modal_template').modal('hide');
-    form_img.val(path);
-    replace_img(file_type, WEBROOT + '/cache/image_file/'+ os +'/' + path);
-
-  });
-
-  // Filter
-  $(document).on('change keydown keyup input', '.filter', function(e){
-    var filter = $(this).val().toLowerCase();
-    $('.media_list .item').filter(function(index) {
-      return $(this).text().toLowerCase().indexOf(filter) < 0;
-    }).css('display', 'none');
-    $('.media_list .item').filter(function(index) {
-      return $(this).text().toLowerCase().indexOf(filter) >= 0;
-    }).css('display', '');
-    if(e.which == 13){
-      $('.media_list .item:visible:first').click();
-    }
-  });
-
-  // Click media list item
-  $(document).on('click', '.media_list .item', function() {
-    var li = $(this);
-    $('.media_list .item').removeClass('active');
-    li.addClass('active');
-    $('.main').fadeOut(100, function(){
-      $('.main').fadeIn().html("<center class='loading'> Loading... </center>");
-      $.get(WEBROOT + '/xhr/xbmcmm/' + li.data('type') + '/' + li.attr('id'), function(data) {
-        if (!data.error) {
-          $('.main').fadeOut(100, function(){
-            $('.main').replaceWith(data);
-          })
-        } else {
-          alert_popup('error', data.error);
-        }
-      });
-    });
-  });
-
-  // Season tab
-  $(document).on('click', '.season_tab', function() {
-    $('.season_details').text('');
-    $('.episode_details').text('');
-    $.get(WEBROOT + '/xhr/xbmcmm/tvshow/' + $(this).data('tvshowid') + '/season/' + $(this).data('season'), function(data) {
-      if (!data.error) {
-        $('.season_details').replaceWith(data);
-      } else {
-        alert_popup('error', data.error);
-      }
-    });
-  });
-
-  // TVShow tab
-  $(document).on('click', '.tvshow_tab', function() {
-    $('.season_details').text('');
-    $('.episode_details').text('');
-    $.get(WEBROOT + '/xhr/xbmcmm/tvshow/' + $(this).data('id'), function(data) {
-      if (!data.error) {
-        $('.main').replaceWith(data);
-      }
-      else {
-        alert_popup('error', data.error);
-      }
-    });
-  });
-
-  // Episode list
-  $(document).on('click', '.episode_list li', function() {
-    var li = $(this);
-    $('.episode_list li').removeClass('active');
-    li.addClass('active');
-    $.get(WEBROOT + '/xhr/xbmcmm/episode/' + $(this).attr('id'), function(data) {
-      if (!data.error) {
-        $('.episode_details').replaceWith(data);
-      }
-      else {
-        alert_popup('error', data.error);
-      }
-    });
-  });
+  /********************/
+  /*    Music Stuff   */
+  /********************/
 
   // Album tab
   $(document).on('click', '.album_tab', function() {
@@ -451,98 +300,6 @@ $(document).ready(function() {
       }
       else {
         alert_popup('error', data.error);
-      }
-    });
-  });
-
-  // Export library
-  $(document).on('click', '.library_export_btn', function() {
-    $.get(WEBROOT + '/xhr/xbmcmm/export/' + $(this).data('library'), function(data) {
-      $('#modal_template').replaceWith(data);
-      $('#modal_template').modal('show');
-    });
-  });
-
-  $(document).on('click', '.export_file_list .path', function(){
-    var path = $(this).data('path');
-    $.post(WEBROOT + '/xhr/xbmcmm/export/filesystem/',{path: encodeURI(path)}, function(data){
-      $('.export_file_list').replaceWith(data);
-    });
-  });
-
-  $(document).on('click', '.export_save', function() {
-    var library = $(this).data('library');
-    var method = $(this).data('method');
-    var form;
-    if (method == 'separate') {
-      form = $('.export_form').serialize();
-    }
-    else {
-      var path = $('.export_file_list .current_path').text();
-      if (path == 'Root') {
-        return alert_popup('error', 'You must select a directory.');
-      }
-      form = { path: encodeURI(path) };
-    }
-
-    $.post(WEBROOT + '/xhr/export/' + library + '/' + method + '/', form, function(data) {
-      $('#modal_template').modal('hide');
-      if (data.success) {
-        alert_popup('success', 'Exporting '+library+' library.');
-      }
-      else {
-        alert_popup('error', 'Failed to export '+library+' library.');
-      }
-    });
-  });
-
-  // Update library
-  $(document).on('click', '.library_update_btn', function() {
-    var library = $(this).data('library');
-    $.get(WEBROOT + '/xhr/controls/update_' + library, function(data) {
-      if (data.success) {
-        alert_popup('success', 'Updating '+library+' library.');
-      }
-      else {
-        alert_popup('error', 'Failed to update '+library+' library.');
-      }
-    });
-  });
-
-  // Clean library
-  $(document).on('click', '.library_clean_btn', function() {
-    var library = $(this).data('library');
-    $.get(WEBROOT + '/xhr/controls/clean_' + library, function(data) {
-      if (data.success) {
-        alert_popup('success', 'Cleaning '+library+' library.');
-      }
-      else {
-        alert_popup('error', 'Failed to clean '+library+' library.');
-      }
-    });
-  });
-
-  // Remove library item
-  $(document).on('click', '.remove_item', function() {
-    var id = $('.main #media_id').data('id');
-    var media = $('.main #media_id').attr('media-type');
-
-    $.get(WEBROOT + '/xhr/xbmcmm/remove/' + media + '/' + id, function(data) {
-      $('#modal_template').replaceWith(data);
-      $('#modal_template').modal('show');
-    });
-  });
-
-  $(document).on('click', '.confirm_remove', function() {
-    var id = $(this).data('id');
-    var media = $(this).data('media');
-
-    $.get(WEBROOT + '/xhr/library_remove/' + media + '/' + id, function(data) {
-      if (data.success) {
-        window.location.reload();
-      }
-      else {
-        alert_popup('error', 'Failed to remove '+media);
       }
     });
   });
@@ -653,6 +410,102 @@ $(document).ready(function() {
     });
   });
 
+  /********************/
+  /*  Generic Stuff   */
+  /********************/
+
+  // Export library
+  $(document).on('click', '.library_export_btn', function() {
+    $.get(WEBROOT + '/xhr/xbmcmm/export/' + $(this).data('library'), function(data) {
+      $('#modal_template').replaceWith(data);
+      $('#modal_template').modal('show');
+    });
+  });
+
+  $(document).on('click', '.export_file_list .path', function(){
+    var path = $(this).data('path');
+    $.post(WEBROOT + '/xhr/xbmcmm/export/filesystem/',{path: encodeURI(path)}, function(data){
+      $('.export_file_list').replaceWith(data);
+    });
+  });
+
+  $(document).on('click', '.export_save', function() {
+    var library = $(this).data('library');
+    var method = $(this).data('method');
+    var form;
+    if (method == 'separate') {
+      form = $('.export_form').serialize();
+    }
+    else {
+      var path = $('.export_file_list .current_path').text();
+      if (path == 'Root') {
+        return alert_popup('error', 'You must select a directory.');
+      }
+      form = { path: encodeURI(path) };
+    }
+
+    $.post(WEBROOT + '/xhr/export/' + library + '/' + method + '/', form, function(data) {
+      $('#modal_template').modal('hide');
+      if (data.success) {
+        alert_popup('success', 'Exporting '+library+' library.');
+      }
+      else {
+        alert_popup('error', 'Failed to export '+library+' library.');
+      }
+    });
+  });
+
+  // Update library
+  $(document).on('click', '.library_update_btn', function() {
+    var library = $(this).data('library');
+    $.get(WEBROOT + '/xhr/controls/update_' + library, function(data) {
+      if (data.success) {
+        alert_popup('success', 'Updating '+library+' library.');
+      }
+      else {
+        alert_popup('error', 'Failed to update '+library+' library.');
+      }
+    });
+  });
+
+  // Clean library
+  $(document).on('click', '.library_clean_btn', function() {
+    var library = $(this).data('library');
+    $.get(WEBROOT + '/xhr/controls/clean_' + library, function(data) {
+      if (data.success) {
+        alert_popup('success', 'Cleaning '+library+' library.');
+      }
+      else {
+        alert_popup('error', 'Failed to clean '+library+' library.');
+      }
+    });
+  });
+
+  // Remove library item
+  $(document).on('click', '.remove_item', function() {
+    var id = $('.main #media_id').data('id');
+    var media = $('.main #media_id').attr('media-type');
+
+    $.get(WEBROOT + '/xhr/xbmcmm/remove/' + media + '/' + id, function(data) {
+      $('#modal_template').replaceWith(data);
+      $('#modal_template').modal('show');
+    });
+  });
+
+  $(document).on('click', '.confirm_remove', function() {
+    var id = $(this).data('id');
+    var media = $(this).data('media');
+
+    $.get(WEBROOT + '/xhr/library_remove/' + media + '/' + id, function(data) {
+      if (data.success) {
+        window.location.reload();
+      }
+      else {
+        alert_popup('error', 'Failed to remove '+media);
+      }
+    });
+  });
+
   // Validate numeric inputs
   $(document).on('change keydown keyup', 'input', function(e){
     var input = $(this);
@@ -671,6 +524,171 @@ $(document).ready(function() {
         }
       }
     });
+  });
+
+  // Filter
+  $(document).on('change keydown keyup input', '.filter', function(e){
+    var filter = $(this).val().toLowerCase();
+    $('.media_list .item').filter(function(index) {
+      return $(this).text().toLowerCase().indexOf(filter) < 0;
+    }).css('display', 'none');
+    $('.media_list .item').filter(function(index) {
+      return $(this).text().toLowerCase().indexOf(filter) >= 0;
+    }).css('display', '');
+    if(e.which == 13){
+      $('.media_list .item:visible:first').click();
+    }
+  });
+
+  // Click media list item
+  $(document).on('click', '.media_list .item', function() {
+    var li = $(this);
+    $('.media_list .item').removeClass('active');
+    li.addClass('active');
+    $('.main').fadeOut(100, function(){
+      $('.main').fadeIn().html("<center class='loading'> Loading... </center>");
+      $.get(WEBROOT + '/xhr/xbmcmm/' + li.data('type') + '/' + li.attr('id'), function(data) {
+        if (!data.error) {
+          $('.main').fadeOut(100, function(){
+            $('.main').replaceWith(data);
+          });
+        } else {
+          alert_popup('error', data.error);
+        }
+      });
+    });
+  });
+
+  // Switch XBMC Server
+  $(document).on('click', '.switch_server', function() {
+    var li = $(this);
+    $.get(WEBROOT + '/xhr/switch_server/' + $(this).data('server_id'), function(data) {
+      if (data.status === 'error') {
+        alert_popup('error', 'There was an error switching XBMC servers.');
+        return;
+      }
+      window.location.reload();
+    });
+  });
+
+  // Image URL
+  $(document).on('click', '.url_btn', function() {
+    $.get(WEBROOT + '/xhr/xbmcmm_url/' + $(this).data('type'), function(data) {
+      $('#modal_template').replaceWith(data);
+      $('#modal_template').modal('show');
+    });
+  });
+
+  $(document).on('click', '.url_save', function() {
+    var type = $(this).data('type');
+    var url = $('#modal_template #' + type + '_url').val();
+    var img, form_img;
+
+    if (type == 'episode_thumb') {
+      type = 'thumb';
+      img = $('.episode_details #thumb_img');
+      form_img = $('.episode_details #id_thumb');
+    }
+    else {
+      img = $('#'+type+'_img');
+      form_img = $('#id_'+type);
+    }
+
+    $('#modal_template').modal('hide');
+    form_img.val(url);
+    replace_img(type, url);
+  });
+
+  // image save
+  $(document).on('click', '.modal_images img', function() {
+    var url = $(this).data('url');
+    var type = $(this).data('type');
+    var img = $('.main #'+type+'_img');
+    var new_src = WEBROOT + '/cache/image_url/' + url.replace('http://', '');
+
+    $('#modal_template').modal('hide');
+    $('#id_'+type).val(url);
+    replace_img(type, new_src);
+  });
+
+  // Filesystem
+  var file_type = '';
+
+  $(document).on('click', '.file_btn', function() {
+    file_type = $(this).data('type');
+    $.get(WEBROOT + '/xhr/filesystem/', function(data) {
+      $('#modal_template').replaceWith(data);
+      $('#modal_template').modal('show');
+    });
+  });
+
+  $(document).on('click', '.file_list .path', function(){
+    var path = $(this).data('path');
+    $.post(WEBROOT + '/xhr/filesystem/',{path: encodeURI(path)}, function(data){
+      $('#modal_template').modal('hide');
+      $('#modal_template').replaceWith(data);
+      $('#modal_template').modal('show');
+    });
+  });
+
+  $(document).on('click', '.file_list .file', function(){
+    $('#modal_template .file').removeClass('active');
+    $(this).addClass('active');
+    $('.file_save_btn').removeClass('hide');
+  });
+
+  $(document).on('click', '.file_save_btn', function(){
+    var path = $('.file_list').children('.active').data('path');
+    var img, form_img;
+    var os = 'unix';
+    if (file_type == 'episode_thumb') {
+      file_type = 'thumb';
+      img = $('.episode_details #thumb_img');
+      form_img = $('.episode_details #id_thumb');
+    }
+    else {
+      img = $('#'+file_type+'_img');
+      form_img = $('#id_'+file_type);
+    }
+
+    if (path.charAt(0) == '/') {
+      path = path.substring(1);
+    }
+    else {
+      os = 'win';
+    }
+
+    $('#modal_template').modal('hide');
+    form_img.val(path);
+    replace_img(file_type, WEBROOT + '/cache/image_file/'+ os +'/' + path);
+
+  });
+
+  // fanart.tv
+  $(document).on('click', '.fanarttv_btn', function() {
+    var btn = $(this);
+    var id = $('.main #id_imdbnumber').val();
+    btn.button('loading');
+    $.get(WEBROOT + '/xhr/fanarttv/' + btn.data('media') + '/' + btn.data('type') + '/' + id, function(data) {
+      if (!data.error) {
+        $('#modal_template').replaceWith(data);
+        $('#modal_template').modal('show');
+      }
+      else {
+        alert_popup('error', data.error);
+      }
+      btn.button('reset');
+    });
+  });
+
+  // Scraped info save
+  $(document).on('click', '.scrape_info_save_btn', function() {
+    $('.scrape_info_form .controls').children().each(function() {
+      if ($(this).val() !== '') {
+        $('#id_'+$(this).attr('id')).val($(this).val());
+      }
+    });
+    $('#modal_template').modal('hide');
   });
 
   // Apply changes

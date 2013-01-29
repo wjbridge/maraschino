@@ -84,6 +84,7 @@ $(document).ready(function() {
     $.get(WEBROOT + '/xhr/xbmcmm/tvshow/' + $(this).data('tvshowid') + '/season/' + $(this).data('season'), function(data) {
       if (!data.error) {
         $('.season_details').replaceWith(data);
+        $('.main .btn-group').hide();
       } else {
         alert_popup('error', data.error);
       }
@@ -96,6 +97,7 @@ $(document).ready(function() {
     $('.episode_details').text('');
     $.get(WEBROOT + '/xhr/xbmcmm/tvshow/' + $(this).data('id'), function(data) {
       if (!data.error) {
+        $('.main .btn-group').show();
         $('.main').replaceWith(data);
       }
       else {

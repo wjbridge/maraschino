@@ -27,8 +27,8 @@
         var curImg = new Image();
         curImg.src = "{{ show['art'][type]|xbmc_image }}";
         curImg.id = "{{ type }}_img";
-        curImg.class = "image";
         curImg.onload = function(){
+          $(this).addClass('image');
           $('.{{ type }}_thumb img').replaceWith(this);
         }
       </script>

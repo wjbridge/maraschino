@@ -7,7 +7,7 @@ $(document).ready(function() {
   // Alert
   function alert_popup(status, msg) {
     var popup = $('<div class="alert alert-'+status+' span3"><a class="close" data-dismiss="alert" href="#">×</a>'+msg+'</div>');
-    $('body').append(popup);
+    $('#alerts').append(popup);
     setTimeout(
       function() {
         $(popup).fadeOut("slow", function() {
@@ -81,10 +81,10 @@ $(document).ready(function() {
   $(document).on('click', '.season_tab', function() {
     $('.season_details').fadeIn().html("<center class='loading'> Loading... </center>");
     $('.episode_details').text('');
+    $('.main .btn-group').hide();
     $.get(WEBROOT + '/xhr/xbmcmm/tvshow/' + $(this).data('tvshowid') + '/season/' + $(this).data('season'), function(data) {
       if (!data.error) {
         $('.season_details').replaceWith(data);
-        $('.main .btn-group').hide();
       } else {
         alert_popup('error', data.error);
       }
@@ -95,9 +95,9 @@ $(document).ready(function() {
   $(document).on('click', '.tvshow_tab', function() {
     $('.season_details').text('');
     $('.episode_details').text('');
+    $('.main .btn-group').show();
     $.get(WEBROOT + '/xhr/xbmcmm/tvshow/' + $(this).data('id'), function(data) {
       if (!data.error) {
-        $('.main .btn-group').show();
         $('.main').replaceWith(data);
       }
       else {
@@ -695,13 +695,14 @@ $(document).ready(function() {
 
   // Apply changes
   $(document).on('click', '.xbmc_save', function() {
-    $(this).text('Loading...');
+    var btn = $(this);
+    btn.text('Loading...');
     var title = $('#id_title').val();
     var details = $('#form :input').serialize();
     var id = $('#media_id').data('id');
     var type = $('#media_id').data('type');
-
-    $.post('/xhr/xbmcmm/' + type + '/set/' + id + '/', details, function(data) {
+    $.post(WEBROOT + '/xhr/xbmcmm/' + type + '/set/' + id + '/', details, function(data) {
+      console.log(data);
       if (!data.error) {
         alert_popup('success', data.status);
         if (type == 'episode') {
@@ -717,6 +718,7 @@ $(document).ready(function() {
       }
       else {
         alert_popup('error', data.error);
+        btn.text('Apply Changes');
       }
     });
   });

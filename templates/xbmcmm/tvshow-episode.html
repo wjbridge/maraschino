@@ -47,7 +47,7 @@
     </div>
     <div class="span6">
       <div class="form-horizontal">
-        <div id="media_id" media-type="episode" data-id="{{ episode.episodeid }}" data-tvshowid="{{ episode.tvshowid }}"></div>
+        <div id="media_id" data-type="episode" data-id="{{ episode.episodeid }}" data-tvshowid="{{ episode.tvshowid }}"></div>
         {{ control_group('title', 'Title') }}
         {{ control_group('plot', 'Plot') }}
         {{ control_group('firstaired', 'First Aired') }}
@@ -66,4 +66,4 @@
   </div>
   {% endif %}
 </div>
-<script>$('input[title]').tooltip({'placement': 'right'})</script>
+<script>$('input[title]').tooltip({'placement': 'left'})</script>

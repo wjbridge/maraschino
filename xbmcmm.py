@@ -501,7 +501,7 @@ def xhr_xbmcmm_set_tvshow(tvshowid):
 @requires_auth
 def xhr_xbmcmm_set_episode(episodeid):
     xbmc = jsonrpclib.Server(server_api_address())
-
+    print 'here'
     try:
         params = {
             'episodeid': episodeid,

@@ -69,6 +69,8 @@ def import_modules():
     import modules.xbmc_notify
     import mobile
     import modules.ipcamera
+    import modules.performance
+
 
 
 @app.teardown_request

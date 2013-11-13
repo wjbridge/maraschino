@@ -117,6 +117,28 @@ AVAILABLE_MODULES = [
         ]
     },
     {
+        'name': 'performance',
+        'label': 'Performance Status',
+        'description': 'Shows you current performance characteristics.',
+        'static': False,
+        'poll': 1,
+        'delay': 0,
+        'settings': [
+            {
+                'key': 'show_cpu_utilization',
+                'value': '1',
+                'description': 'Show CPU Utilization',
+                'type': 'bool',
+            },
+            {
+                'key': 'show_network_utilization',
+                'value': '1',
+                'description': 'Show Network Utilization',
+                'type': 'bool',
+            },         
+        ]
+    },               
+    {
         'name': 'headphones',
         'label': 'Headphones Manager',
         'description': 'Manage Headphones from within Maraschino',

@@ -5,6 +5,7 @@ from maraschino import app, logger
 from maraschino.tools import requires_auth, format_number, get_setting_value
 from maraschino.database import db_session
 
+
 from maraschino.models import Disk, HardDisk
 
 @app.route('/xhr/diskspace/')

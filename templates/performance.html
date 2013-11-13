@@ -1,0 +1,79 @@
+<div id="performance" class="module generic" data-module="performance">
+
+	<div class="module_settings"><span>Settings</span></div>
+	<div class="module_remove"><span>Remove</span></div>
+
+	<h2>Performance</h2>
+
+	<div class="inner">
+		<ul>
+			<li>
+				<div class="clearfix">
+					<div class="name">Physical Memory:</div>
+					<table class="stat_element">
+						<tr>
+							<td>{{ result.usedPhyMemory }} used,</td>
+							<td>{{ result.availPhyMemory }} free,</td>
+							<td>{{ result.totalPhyMemory }} total</td>
+						</tr>
+					</table>
+				</div>
+			</li>
+			<li>
+				<div class="clearfix">
+					<div class="name">Swap Memory:</div>
+					<table class="stat_element">
+						<tr>
+							<td>{{ result.usedSwapMemory }} used,</td>
+							<td>{{ result.availSwapMemory }} free,</td>
+							<td>{{ result.totalSwapMemory }} total</td>
+						</tr>
+					</table>
+				</div>
+			</li>
+			{% if settings.show_network_utilization == '1' %}
+			<hr>
+			<li>
+				<div class="clearfix">
+					<div class="name">Network IO Status:</div>
+					<table class="stat_netio">
+						<tr>
+							<td width="200px">{{ result.packetSent }} packets sent,</td>
+							<td width="200px">{{ result.packetRecv }} packets recv,</td>
+						</tr>
+						<tr>
+							<td width="100px">{{ result.errin }} errin,</td>
+							<td width="100px">{{ result.errout }} errout</td>
+						</tr>
+						{% if result.bytes_sent %}
+						<tr>
+							<td width="200px">{{ result.bytes_sent }} data sent,</td>
+							<td width="200px">{{ result.bytes_recv }} data recv</td>
+						</tr>
+						{% endif %}
+					</table>
+				</div>
+			</li>
+			{% endif %}
+			{% if settings.show_cpu_utilization == '1' %}
+			<hr>
+			<li>
+				<div class="clearfix">
+					<div class="name">CPU Utilization:</div>
+					<table class="stat_cpu">
+						<tr>
+							<td>{{ result.cpuPercent }} per CPU,</td>
+						</tr>
+						<tr>
+							<td>{{ result.cpuOverall }}% Overall,</td>
+						</tr>
+						<tr>
+							<td>{{ result.cpuTimes }}</td>
+						</tr>
+					</table>
+				</div>
+			</li>
+			{% endif %}
+		</ul>
+	</div>
+</div>

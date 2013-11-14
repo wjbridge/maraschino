@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """This file contains the descriptions and settings for all modules. Also it contains functions to add modules and so on"""
 
 try:
@@ -135,7 +134,13 @@ AVAILABLE_MODULES = [
                 'value': '1',
                 'description': 'Show Network Utilization',
                 'type': 'bool',
-            },         
+            },
+            {
+                'key': 'show_process_utilization',
+                'value': '1',
+                'description': 'Show Process Utilization',
+                'type': 'bool',
+            },                  
         ]
     },               
     {

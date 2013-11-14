@@ -1,10 +1,12 @@
 import psutil
+import sys
+import itertools
 
 from flask import Flask, render_template 
+from collections import namedtuple
 
 from maraschino import app, logger
 from maraschino.tools import requires_auth, format_number, get_setting_value
-from maraschino.database import db_session
 
 
 @app.route('/xhr/performance/')
@@ -17,10 +19,11 @@ def xhr_performance():
     physicalMemory = psutil.virtual_memory()
     swapMemory = psutil.swap_memory()
     netio = psutil.net_io_counters(False)
-    
+      
     #Get settings
     settings['show_cpu_utilization'] = get_setting_value('show_cpu_utilization')
     settings['show_network_utilization'] = get_setting_value('show_network_utilization')
+    settings['show_process_utilization'] = get_setting_value('show_process_utilization')
     
     info['usedPhyMemory'] = bytes2human(physicalMemory.used)
     info['availPhyMemory'] = bytes2human(physicalMemory.free)
@@ -41,7 +44,10 @@ def xhr_performance():
     info['cpuPercent'] = psutil.cpu_percent(0.1, True) 
     info['cpuOverall'] = psutil.cpu_percent(0.1, False)
     info['cpuTimes'] = psutil.cpu_times_percent(0.1, False)
-
+    
+    info['processPerformance'] = get_process_performance()
+    logger.log(get_setting_value('show_process_utilization'), 'INFO')
+        
     return render_template('performance.html', result = info, settings = settings) # Render the template for our module
 
 @app.route('/xhr/performance/bytes2human/<number>')
@@ -61,3 +67,26 @@ def bytes2human(n):
             value = float(n) / prefix[s]
             return '%.3f%s' % (value, s)
     return "%sB" % n
+
+@app.route('/xhr/performance/get_process_performance/')
+@requires_auth
+def get_process_performance():
+    ACCESS_DENIED = ''
+    processList = [ ]
+    
+    for pid in psutil.get_pid_list():
+        if (psutil.pid_exists(pid)):
+            try:
+                p = psutil.Process(pid)
+                pinfo = p.as_dict(ad_value=ACCESS_DENIED)
+            except psutil.NoSuchProcess:
+                logger.error(str(sys.exc_info()[1]))
+            
+            Process = namedtuple('Process', "pid name cpu_percent memory_percent")
+            
+            if (pinfo['name']):
+                processList.append(Process(pid=pinfo['pid'], name=pinfo['name'], cpu_percent=round(pinfo['cpu_percent'], 3), memory_percent=round(pinfo['memory_percent'], 2)))
+    
+    processList = sorted(processList, key=lambda x: x.memory_percent, reverse=True)
+    
+    return processList

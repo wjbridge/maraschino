@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 """Class that represent the database structure"""
+import threading
+import time
 
 from sqlalchemy import Column, Integer, String, Boolean, PickleType
 from maraschino.database import Base
@@ -82,7 +84,6 @@ class Disk(Base):
 
     def __repr__(self):
         return '<Disk %r>' % (self.path)
-
 
 class HardDisk(Base):
     """Table for one disk in the diskspace module"""

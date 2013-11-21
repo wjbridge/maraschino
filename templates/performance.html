@@ -12,43 +12,49 @@
 					<div class="name">Physical Memory:</div>
 					<table class="stat_element">
 						<tr>
-							<td>{{ result.usedPhyMemory }} used,</td>
-							<td>{{ result.availPhyMemory }} free,</td>
-							<td>{{ result.totalPhyMemory }} total</td>
+							<td></td>
+							<td>USED</td>
+							<td>FREE</td>
+							<td>TOTAL</td>
 						</tr>
-					</table>
-				</div>
-			</li>
-			<li>
-				<div class="clearfix">
-					<div class="name">Swap Memory:</div>
-					<table class="stat_element">
 						<tr>
-							<td>{{ result.usedSwapMemory }} used,</td>
-							<td>{{ result.availSwapMemory }} free,</td>
-							<td>{{ result.totalSwapMemory }} total</td>
+							<td>(Physical)</td>
+							<td>{{ result.usedPhyMemory }}</td>
+							<td>{{ result.availPhyMemory }}</td>
+							<td>{{ result.totalPhyMemory }}</td>
+						</tr>
+						<tr>
+							<td>(Swap)</td>
+							<td>{{ result.usedSwapMemory }}</td>
+							<td>{{ result.availSwapMemory }}</td>
+							<td>{{ result.totalSwapMemory }}</td>
 						</tr>
 					</table>
 				</div>
 			</li>
 			{% if settings.show_network_utilization == '1' %}
-			<hr>
 			<li>
 				<div class="clearfix">
 					<div class="name">Network IO Status:</div>
-					<table class="stat_netio">
+					<table class="stat_element">
 						<tr>
-							<td width="200px">{{ result.packetSent }} packets sent,</td>
-							<td width="200px">{{ result.packetRecv }} packets recv,</td>
+							<td>Packets Sent:</td>
+							<td>{{ result.packetSent }}</td>
+							<td>Packets Recv:</td>
+							<td>{{ result.packetRecv }}</td>
 						</tr>
 						<tr>
-							<td width="100px">{{ result.errin }} errin,</td>
-							<td width="100px">{{ result.errout }} errout</td>
+							<td>Err In:</td>
+							<td>{{ result.errin }}</td>
+							<td>Err Out:</td>
+							<td>{{ result.errout }}</td>
 						</tr>
 						{% if result.bytes_sent %}
 						<tr>
-							<td width="200px">{{ result.bytes_sent }} data sent,</td>
-							<td width="200px">{{ result.bytes_recv }} data recv</td>
+							<td>Data Sent:</td>
+							<td>{{ result.bytes_sent }}</td>
+							<td>Data Recv:</td>
+							<td>{{ result.bytes_recv }}</td>
 						</tr>
 						{% endif %}
 					</table>
@@ -56,33 +62,39 @@
 			</li>
 			{% endif %}
 			{% if settings.show_cpu_utilization == '1' %}
-			<hr>
 			<li>
 				<div class="clearfix">
 					<div class="name">CPU Utilization:</div>
-					<table class="stat_cpu">
+					<table class="stat_element">
 						<tr>
-							<td>{{ result.cpuPercent }} per CPU,</td>
+							{% for cpuPerc in result.cpuPercent %}
+							<td> CPU #{{ cpuPerc.index }}: {{ cpuPerc.CPUpercentage }}% </td>
+							{% endfor %}
+						</tr>				
+						<tr>
+							<td>CPU Usage:</td>
+							<td>{{ result.cpuOverall }}%</td>
 						</tr>
 						<tr>
-							<td>{{ result.cpuOverall }}% Overall,</td>
-						</tr>
-						<tr>
-							<td>{{ result.cpuTimes }}</td>
+							<td colspan="1">User: {{ result.cpuTimes.user }}%</td>
+							<td>System: {{ result.cpuTimes.system }}%</td>
+							<td>Idle: {{ result.cpuTimes.idle }}%</td>
 						</tr>
 					</table>
 				</div>
 			</li>
 			{% endif %}
 			{% if settings.show_process_utilization == '1' %}
-			<hr>
 			<li>
 				<div class="clearfix">
 					<div class="name">Process Utilization:</div>
 					<table class="stat_element">
 						{% for process in result.processPerformance %}
 						<tr>
-							<td>PID: {{ process.pid }}, Name: {{ process.name }}, CPU_%: {{ process.cpu_percent }}, Mem_%: {{ process.memory_percent }}</td>
+							<td>PID: {{ process.pid }}</td>
+							<td>{{ process.name }}</td>
+							<td>CPU: {{ process.cpu_percent }}%</td>
+							<td>Mem: {{ process.memory_percent }}%</td>
 						</tr>
 						{% endfor %}
 					</table>

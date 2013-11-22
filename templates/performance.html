@@ -10,7 +10,7 @@
 			<li>
 				<div class="clearfix">
 					<div class="name">Physical Memory:</div>
-					<table class="stat_element">
+					<table class="stat_right">
 						<tr>
 							<td></td>
 							<td>USED</td>
@@ -36,7 +36,7 @@
 			<li>
 				<div class="clearfix">
 					<div class="name">Network IO Status:</div>
-					<table class="stat_element">
+					<table class="stat_right">
 						<tr>
 							<td>Packets Sent:</td>
 							<td>{{ result.packetSent }}</td>
@@ -44,19 +44,23 @@
 							<td>{{ result.packetRecv }}</td>
 						</tr>
 						<tr>
+							<td>Data Recv:</td>
+							<td>{{ result.bytesRecv }}</td>
+							<td>Data Recv Rate:</td>
+							<td>{{ result.bytesRecvRate }} / s</td>
+						</tr>
+						<tr>
+							<td>Data Sent:</td>
+							<td>{{ result.bytesSent }}</td>
+							<td>Data Sent Rate:</td>
+							<td>{{ result.bytesSentRate }} / s</td>
+						</tr>
+						<tr>
 							<td>Err In:</td>
 							<td>{{ result.errin }}</td>
 							<td>Err Out:</td>
 							<td>{{ result.errout }}</td>
 						</tr>
-						{% if result.bytes_sent %}
-						<tr>
-							<td>Data Sent:</td>
-							<td>{{ result.bytes_sent }}</td>
-							<td>Data Recv:</td>
-							<td>{{ result.bytes_recv }}</td>
-						</tr>
-						{% endif %}
 					</table>
 				</div>
 			</li>
@@ -65,18 +69,31 @@
 			<li>
 				<div class="clearfix">
 					<div class="name">CPU Utilization:</div>
-					<table class="stat_element">
+					<table class="stat_right">
 						<tr>
 							{% for cpuPerc in result.cpuPercent %}
+							{% if cpuPerc.index <= 3 %}
 							<td> CPU #{{ cpuPerc.index }}: {{ cpuPerc.CPUpercentage }}% </td>
+							{% endif %}
 							{% endfor %}
-						</tr>				
+						</tr>
+						{% if result.totalCPUCol >= 5 %}
 						<tr>
-							<td>CPU Usage:</td>
+							{% for cpuPerc in result.cpuPercent %}
+							{% if cpuPerc.index >= 4 %}
+							<td> CPU #{{ cpuPerc.index }}: {{ cpuPerc.CPUpercentage }}% </td>
+							{% endif %}
+							{% endfor %}
+						</tr>
+						{% endif %}
+					</table>
+					<table class="stat_right">				
+						<tr>
+							<td colspan="2">CPU Usage:</td>
 							<td>{{ result.cpuOverall }}%</td>
 						</tr>
 						<tr>
-							<td colspan="1">User: {{ result.cpuTimes.user }}%</td>
+							<td>User: {{ result.cpuTimes.user }}%</td>
 							<td>System: {{ result.cpuTimes.system }}%</td>
 							<td>Idle: {{ result.cpuTimes.idle }}%</td>
 						</tr>
@@ -88,7 +105,7 @@
 			<li>
 				<div class="clearfix">
 					<div class="name">Process Utilization:</div>
-					<table class="stat_element">
+					<table class="stat_left">
 						{% for process in result.processPerformance %}
 						<tr>
 							<td>PID: {{ process.pid }}</td>

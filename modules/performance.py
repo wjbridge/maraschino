@@ -7,8 +7,11 @@ from flask import Flask, render_template
 from collections import namedtuple
 
 from maraschino import app, logger
-from maraschino.tools import requires_auth, get_setting_value
+from maraschino.tools import requires_auth, get_setting_value, convert_bytes
+from maraschino.modules import get_module
 
+lastBytesReceived = 0
+lastBytesSent = 0
 enableThread = True
 processThread = None
 processList = [ ]
@@ -31,25 +34,27 @@ def xhr_performance():
     physicalMemory = psutil.virtual_memory()
     swapMemory = psutil.swap_memory()
     netio = psutil.net_io_counters(False)
-      
+    
     #Get settings
     settings['show_cpu_utilization'] = get_setting_value('show_cpu_utilization')
     settings['show_network_utilization'] = get_setting_value('show_network_utilization')
     settings['show_process_utilization'] = get_setting_value('show_process_utilization')
     
-    info['usedPhyMemory'] = bytes2human(physicalMemory.used)
-    info['availPhyMemory'] = bytes2human(physicalMemory.free)
-    info['totalPhyMemory'] = bytes2human(physicalMemory.total)
-    
-    info['usedSwapMemory'] = bytes2human(swapMemory.used)
-    info['availSwapMemory'] = bytes2human(swapMemory.free)
-    info['totalSwapMemory'] = bytes2human(swapMemory.total)
+    #Get Memory Stats
+    info['usedPhyMemory'] = convert_bytes(physicalMemory.used)
+    info['availPhyMemory'] = convert_bytes(physicalMemory.free)
+    info['totalPhyMemory'] = convert_bytes(physicalMemory.total)
+    info['usedSwapMemory'] = convert_bytes(swapMemory.used)
+    info['availSwapMemory'] = convert_bytes(swapMemory.free)
+    info['totalSwapMemory'] = convert_bytes(swapMemory.total)
     
     if (settings['show_network_utilization'] == '1'):
-        info['bytesSent'] = netio.bytes_sent
-        info['bytesRecv'] = bytes2human(netio.bytes_recv)
-        info['packetSent'] = bytes2human(netio.packets_sent)
-        info['packetRecv'] = bytes2human(netio.packets_recv)
+        info['bytesSent'] = convert_bytes(netio.bytes_sent)
+        info['bytesSentRate'] = updateSentRate(netio.bytes_sent)
+        info['bytesRecv'] = convert_bytes(netio.bytes_recv)
+        info['bytesRecvRate'] = updateDownloadRate(netio.bytes_recv)
+        info['packetSent'] = convert_bytes(netio.packets_sent)
+        info['packetRecv'] = convert_bytes(netio.packets_recv)
         info['errin'] = netio.errin
         info['errout'] = netio.errout
     
@@ -61,7 +66,7 @@ def xhr_performance():
         for item in psutil.cpu_percent(0.1, True):
             cpuList.append(cpuPerCore(index=i, CPUpercentage=item))
             i += 1
-        info['totalCPUCol'] = i         #used for html format table
+        info['totalCPUCol'] = i     #used for html format table
         info['cpuPercent'] = cpuList
         info['cpuOverall'] = psutil.cpu_percent(0.1, False)
         info['cpuTimes'] = psutil.cpu_times_percent(0.1, False)
@@ -70,30 +75,12 @@ def xhr_performance():
         with lock:
             info['processPerformance'] = processList
     
-    return render_template('performance.html', result = info, settings = settings) # Render the template for our module
+    # Render the template for our module
+    return render_template('performance.html', result = info, settings = settings)
 
-@app.route('/xhr/performance/bytes2human/<number>')
-@requires_auth
-def bytes2human(n):
-    # http://code.activestate.com/recipes/578019
-    # >>> bytes2human(10000)
-    # '9.8K'
-    # >>> bytes2human(100001221)
-    # '95.4M'
-    symbols = ('K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
-    prefix = {}
-    for i, s in enumerate(symbols):
-        prefix[s] = 1 << (i+1)*10
-    for s in reversed(symbols):
-        if n >= prefix[s]:
-            value = float(n) / prefix[s]
-            return '%.3f%s' % (value, s)
-    return "%sB" % n
-
-@app.route('/xhr/performance/get_process_performance/')
-@requires_auth
 def get_process_performance():
     global processList
+    global enableThread
     
     #Create anmed tuple to store list
     Process = namedtuple('Process', "pid name cpu_percent memory_percent")
@@ -120,3 +107,27 @@ def get_process_performance():
             processList = Plist
         
         time.sleep(10)
+
+def updateDownloadRate(newRateRecv):
+    global lastBytesReceived
+        
+    #Get module poll rate. Will be used to calculate MB/Sec
+    pollRate = get_module('performance').poll
+    
+    diff = newRateRecv - lastBytesReceived
+    
+    lastBytesReceived = newRateRecv
+    
+    return convert_bytes(round(diff / pollRate, 1))
+
+def updateSentRate(newRateSent):
+    global lastBytesSent
+    
+    #Get module poll rate. Will be used to calculate MB/Sec
+    pollRate = get_module('performance').poll
+    
+    diff = newRateSent - lastBytesSent
+    
+    lastBytesSent = newRateSent
+    
+    return convert_bytes(round(diff / pollRate, 1))

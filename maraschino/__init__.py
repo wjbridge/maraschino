@@ -184,6 +184,7 @@ def start_schedules():
         # check every 6 hours for a new version
         from maraschino.updater import checkGithub
         SCHEDULE.add_interval_job(checkGithub, hours=6)
+        
     SCHEDULE.start()
 
 

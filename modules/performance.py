@@ -1,5 +1,6 @@
 import psutil
 import threading
+import os
         
 from flask import Flask, render_template 
 from collections import namedtuple
@@ -68,7 +69,6 @@ def xhr_performance():
         info['cpuTimes'] = psutil.cpu_times_percent(0.1, False)
     
     if (settings['show_process_utilization'] == '1'):
-        logger.log(processList, 'INFO')
         info['processPerformance'] = processList
     
     # Render the template for our module
@@ -90,7 +90,7 @@ def get_process_performance():
                 #get python script name
                 if pid.cmdline:  
                     #list is not empty
-                    Plist.append(Process(pid=pid.pid, name=pid.cmdline[1], cpu_percent=round(pid.get_cpu_percent(), 3), memory_percent=round(pid.get_memory_percent(), 2)))
+                    Plist.append(Process(pid=pid.pid, name=os.path.basename(pid.cmdline[1]), cpu_percent=round(pid.get_cpu_percent(), 3), memory_percent=round(pid.get_memory_percent(), 2)))
                 else:
                     #list is empty
                     Plist.append(Process(pid=pid.pid, name=pid.name, cpu_percent=round(pid.get_cpu_percent(), 3), memory_percent=round(pid.get_memory_percent(), 2)))

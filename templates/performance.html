@@ -87,12 +87,20 @@
 						</tr>
 						{% endif %}
 					</table>
-					<table class="stat_right">				
+				</div>
+			</li>
+			{% endif %}
+			{% if settings.show_cpu_utilization == '1' %}
+			<li>
+				<div class="clearfix">
+					<div class="name">CPU Load Overall:</div>
+					<table class="stat_right">
 						<tr>
 							<td colspan="2">CPU Usage:</td>
 							<td>{{ result.cpuOverall }}%</td>
 						</tr>
 						<tr>
+							
 							<td>User: {{ result.cpuTimes.user }}%</td>
 							<td>System: {{ result.cpuTimes.system }}%</td>
 							<td>Idle: {{ result.cpuTimes.idle }}%</td>

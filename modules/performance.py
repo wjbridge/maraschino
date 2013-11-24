@@ -24,7 +24,7 @@ def xhr_performance():
     
     if (processSchedule == None):
         logger.log("Process List SCHEDULE Job is Starting", 'INFO')
-        #SCHEDULE.add_interval_job(get_process_performance, seconds=5)
+        SCHEDULE.add_interval_job(get_process_performance, seconds=5)
         processSchedule = 1
     
     physicalMemory = psutil.virtual_memory()
@@ -69,7 +69,6 @@ def xhr_performance():
     
     if (settings['show_process_utilization'] == '1'):
         logger.log(processList, 'INFO')
-        get_process_performance()
         info['processPerformance'] = processList
     
     # Render the template for our module

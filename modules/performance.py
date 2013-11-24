@@ -24,7 +24,7 @@ def xhr_performance():
     
     if (processSchedule == None):
         logger.log("Process List SCHEDULE Job is Starting", 'INFO')
-        SCHEDULE.add_interval_job(get_process_performance, seconds=5)
+        #SCHEDULE.add_interval_job(get_process_performance, seconds=5)
         processSchedule = 1
     
     physicalMemory = psutil.virtual_memory()
@@ -68,6 +68,8 @@ def xhr_performance():
         info['cpuTimes'] = psutil.cpu_times_percent(0.1, False)
     
     if (settings['show_process_utilization'] == '1'):
+        logger.log(processList, 'INFO')
+        get_process_performance()
         info['processPerformance'] = processList
     
     # Render the template for our module
@@ -76,7 +78,7 @@ def xhr_performance():
 def get_process_performance():
     global processList
     global enableThread
-    
+       
     #Create anmed tuple to store list
     Process = namedtuple('Process', "pid name cpu_percent memory_percent")
       
@@ -85,11 +87,20 @@ def get_process_performance():
     #Create a list of all processes with info about them
     for pid in psutil.process_iter():
         try:
-            Plist.append(Process(pid=pid.pid, name=pid.name, cpu_percent=round(pid.get_cpu_percent(), 3), memory_percent=round(pid.get_memory_percent(), 2)))
+            if ('python' in pid.name.lower()):
+                #get python script name
+                if pid.cmdline:  
+                    #list is not empty
+                    Plist.append(Process(pid=pid.pid, name=pid.cmdline[1], cpu_percent=round(pid.get_cpu_percent(), 3), memory_percent=round(pid.get_memory_percent(), 2)))
+                else:
+                    #list is empty
+                    Plist.append(Process(pid=pid.pid, name=pid.name, cpu_percent=round(pid.get_cpu_percent(), 3), memory_percent=round(pid.get_memory_percent(), 2)))
+            else:
+                #use generic name
+                Plist.append(Process(pid=pid.pid, name=pid.name, cpu_percent=round(pid.get_cpu_percent(), 3), memory_percent=round(pid.get_memory_percent(), 2)))
+        
         except psutil.AccessDenied:
             pass
-        except:
-            logger.log('Error in psutil', 'INFO')
     
     #Sort the list first by CPU then by Memory. Get top 5
     Plist = sorted(Plist, key=lambda x: (x.cpu_percent, x.memory_percent), reverse=True)[:5]

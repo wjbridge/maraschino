@@ -943,7 +943,7 @@ def remove_module(name):
     module = Module.query.filter(Module.name == name).first()
     db_session.delete(module)
     db_session.commit()
-
+    
     return jsonify({ 'status': 'success' })
 
 @app.route('/xhr/module_settings_dialog/<name>')

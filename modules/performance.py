@@ -6,30 +6,28 @@ import sys
 from flask import Flask, render_template 
 from collections import namedtuple
 
-from maraschino import app, logger
+from maraschino import app, logger, SCHEDULE
 from maraschino.tools import requires_auth, get_setting_value, convert_bytes
 from maraschino.modules import get_module
 
 lastBytesReceived = 0
 lastBytesSent = 0
-enableThread = True
-processThread = None
 processList = [ ]
-lock = threading.RLock()
+processSchedule = None
 
 @app.route('/xhr/performance/')
 @requires_auth
 def xhr_performance():
-    global processThread
+    global processSchedule
     global processList
     
     info = {}
     settings = {}
     
-    if (processThread == None):
-        logger.log("Process List Thread is Starting", 'INFO')
-        threading.Thread(target=get_process_performance, name='ProcessPerformanceThread').start()
-        processThread = 1
+    if (processSchedule == None):
+        logger.log("Process List SCHEDULE Job is Starting", 'INFO')
+        SCHEDULE.add_interval_job(get_process_performance, seconds=3)
+        processSchedule = 1
     
     physicalMemory = psutil.virtual_memory()
     swapMemory = psutil.swap_memory()
@@ -72,8 +70,7 @@ def xhr_performance():
         info['cpuTimes'] = psutil.cpu_times_percent(0.1, False)
     
     if (settings['show_process_utilization'] == '1'):
-        with lock:
-            info['processPerformance'] = processList
+        info['processPerformance'] = processList
     
     # Render the template for our module
     return render_template('performance.html', result = info, settings = settings)
@@ -84,29 +81,23 @@ def get_process_performance():
     
     #Create anmed tuple to store list
     Process = namedtuple('Process', "pid name cpu_percent memory_percent")
+      
+    Plist = [ ]
+
+    #Create a list of all processes with info about them
+    for pid in psutil.process_iter():
+        try:
+            Plist.append(Process(pid=pid.pid, name=pid.name, cpu_percent=round(pid.get_cpu_percent(), 3), memory_percent=round(pid.get_memory_percent(), 2)))
+        except psutil.AccessDenied:
+            pass
+        except:
+            logger.log('Error in psutil', 'INFO')
     
-    while (enableThread):      
-        Plist = [ ]
-        
-        logger.log('Process List Thread is RUNNING', 'INFO')
+    #Sort the list first by CPU then by Memory. Get top 5
+    Plist = sorted(Plist, key=lambda x: (x.cpu_percent, x.memory_percent), reverse=True)[:5]
     
-        #Create a list of all processes with info about them
-        for pid in psutil.process_iter():
-            try:
-                Plist.append(Process(pid=pid.pid, name=pid.name, cpu_percent=round(pid.get_cpu_percent(), 3), memory_percent=round(pid.get_memory_percent(), 2)))
-            except psutil.AccessDenied:
-                logger.log("Access Denied for PID %d" % pid.pid, 'WARN')
-            except:
-                logger.log("Unexpected Error: %s" % sys.exc_info()[0], 'WARN')
-        
-        #Sort the list first by CPU then by Memory. Get top 5
-        Plist = sorted(Plist, key=lambda x: (x.cpu_percent, x.memory_percent), reverse=True)[:5]
-        
-        #Assign list
-        with lock:
-            processList = Plist
-        
-        time.sleep(10)
+    #Assign list
+    processList = Plist
 
 def updateDownloadRate(newRateRecv):
     global lastBytesReceived

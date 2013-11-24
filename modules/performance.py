@@ -1,7 +1,5 @@
 import psutil
 import threading
-import time
-import sys
         
 from flask import Flask, render_template 
 from collections import namedtuple
@@ -26,7 +24,7 @@ def xhr_performance():
     
     if (processSchedule == None):
         logger.log("Process List SCHEDULE Job is Starting", 'INFO')
-        SCHEDULE.add_interval_job(get_process_performance, seconds=3)
+        SCHEDULE.add_interval_job(get_process_performance, seconds=5)
         processSchedule = 1
     
     physicalMemory = psutil.virtual_memory()

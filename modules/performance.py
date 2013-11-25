@@ -1,6 +1,6 @@
 import psutil
-import threading
-import os
+import re
+import itertools
         
 from flask import Flask, render_template 
 from collections import namedtuple
@@ -28,6 +28,7 @@ def xhr_performance():
         SCHEDULE.add_interval_job(get_process_performance, seconds=5)
         processSchedule = 1
     
+    #Get Memory Status and NetIO Status
     physicalMemory = psutil.virtual_memory()
     swapMemory = psutil.swap_memory()
     netio = psutil.net_io_counters(False)
@@ -45,13 +46,14 @@ def xhr_performance():
     info['availSwapMemory'] = convert_bytes(swapMemory.free)
     info['totalSwapMemory'] = convert_bytes(swapMemory.total)
     
+    #Display Network Status
     if (settings['show_network_utilization'] == '1'):
         info['bytesSent'] = convert_bytes(netio.bytes_sent)
         info['bytesSentRate'] = updateSentRate(netio.bytes_sent)
         info['bytesRecv'] = convert_bytes(netio.bytes_recv)
         info['bytesRecvRate'] = updateDownloadRate(netio.bytes_recv)
-        info['packetSent'] = convert_bytes(netio.packets_sent)
-        info['packetRecv'] = convert_bytes(netio.packets_recv)
+        info['packetSent'] = convert_bytes(netio.packets_sent).replace('B', '')
+        info['packetRecv'] = convert_bytes(netio.packets_recv).replace('B', '')
         info['errin'] = netio.errin
         info['errout'] = netio.errout
     
@@ -75,6 +77,7 @@ def xhr_performance():
     return render_template('performance.html', result = info, settings = settings)
 
 def get_process_performance():
+    ''' Gets the list of processes that are using the most CPU and RAM on the system '''
     global processList
     global enableThread
        
@@ -86,28 +89,40 @@ def get_process_performance():
     #Create a list of all processes with info about them
     for pid in psutil.process_iter():
         try:
+            #Do we have a process that has 'python'
             if ('python' in pid.name.lower()):
                 #get python script name
-                if pid.cmdline:  
-                    #list is not empty
-                    Plist.append(Process(pid=pid.pid, name=os.path.basename(pid.cmdline[1]), cpu_percent=round(pid.get_cpu_percent(), 3), memory_percent=round(pid.get_memory_percent(), 2)))
-                else:
-                    #list is empty
-                    Plist.append(Process(pid=pid.pid, name=pid.name, cpu_percent=round(pid.get_cpu_percent(), 3), memory_percent=round(pid.get_memory_percent(), 2)))
+                Plist.append(Process(pid=pid.pid, name=extractPythonScriptName(pid), cpu_percent=round(pid.get_cpu_percent(), 3), memory_percent=round(pid.get_memory_percent(), 2)))
             else:
-                #use generic name
+                #Use generic name
                 Plist.append(Process(pid=pid.pid, name=pid.name, cpu_percent=round(pid.get_cpu_percent(), 3), memory_percent=round(pid.get_memory_percent(), 2)))
         
         except psutil.AccessDenied:
             pass
     
-    #Sort the list first by CPU then by Memory. Get top 5
-    Plist = sorted(Plist, key=lambda x: (x.cpu_percent, x.memory_percent), reverse=True)[:5]
+    #Sort the list first by CPU then by Memory. Get top x
+    Plist = sorted(Plist, key=lambda x: (x.cpu_percent, x.memory_percent), reverse=True)
     
     #Assign list
-    processList = Plist
+    processList = Plist[:int(get_setting_value('top_process_number'))]
+    
+def extractPythonScriptName(pid):
+    ''' Extracts the python script name instead of just showing process name as 'python' '''
+    
+    #Combine all command line arguments
+    cmdStr = ''.join(pid.cmdline)
+    
+    #Search for python script name
+    match = re.search(r'\w+\.py', cmdStr)
+    
+    #Found match?
+    if match:
+        return match.group()
+    else:
+        return pid.name
 
 def updateDownloadRate(newRateRecv):
+    ''' Updates the Download Rate '''
     global lastBytesReceived
         
     #Get module poll rate. Will be used to calculate MB/Sec
@@ -120,6 +135,7 @@ def updateDownloadRate(newRateRecv):
     return convert_bytes(round(diff / pollRate, 1))
 
 def updateSentRate(newRateSent):
+    '''Updates the Send Rate '''
     global lastBytesSent
     
     #Get module poll rate. Will be used to calculate MB/Sec
